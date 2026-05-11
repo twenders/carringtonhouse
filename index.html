@@ -79,6 +79,10 @@
     background: #f6f6f6; cursor: pointer; margin-top: 6px; width: 100%;
   }
   .upload-button:active { background: #e6e6e6; }
+  .upload-hint {
+    font-size: 0.75rem; color: var(--muted); margin: 4px 0 0;
+  }
+  .upload-hint a { color: inherit; text-decoration: underline; }
   .puzzle-upload-error {
     font-size: 0.75rem; color: var(--wrong);
     margin-top: 4px;
@@ -214,6 +218,7 @@
         <select id="puzzle-select" class="puzzle-select"></select>
         <button id="upload-puzzle" type="button" class="upload-button">Upload .ipuz…</button>
         <input id="upload-input" type="file" accept=".ipuz,application/json,.json" hidden>
+        <p class="upload-hint">See <a href="./ipuz-format.html" target="_blank" rel="noopener">.ipuz format</a> for the spec and a minimal example.</p>
         <div id="upload-error" class="puzzle-upload-error" hidden></div>
       </div>
     </details>
