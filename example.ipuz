@@ -1,0 +1,20 @@
+{
+  "version": "http://ipuz.org/v1",
+  "kind": ["http://ipuz.org/crossword#1"],
+  "title": "Example puzzle",
+  "subtitle": "Minimal 3×3 .ipuz showing the file format",
+  "author": "—",
+  "id": "example-tiny",
+  "dimensions": { "width": 3, "height": 3 },
+  "puzzle": [
+    ["#",   1,   2],
+    [   3,   0,   0],
+    [   4,   0,   0]
+  ],
+  "solution": [
+    ["#", "A", "B"],
+    ["C", "D", "E"],
+    ["F", "G", "H"]
+  ],
+  "block": "#"
+}
