@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseIpuz } from '../engine.js';
+import { parseIpuz } from '../../engine.js';
 
 test('engine module loads', async () => {
-  const engine = await import('../engine.js');
+  const engine = await import('../../engine.js');
   assert.equal(typeof engine, 'object');
 });
 
@@ -48,6 +48,32 @@ test('parseIpuz synthesizes an id when none provided', () => {
   delete noId.id;
   const p = parseIpuz(noId);
   assert.match(p.id, /^x-[a-z0-9]+$/);
+});
+
+test('parseIpuz extracts subtitle, author, publisher, publisherUrl, and date', () => {
+  const meta = {
+    ...tinyIpuz,
+    subtitle: 'A small one',
+    author: 'Test Author',
+    publisher: 'Test Publisher',
+    publisher_url: 'https://example.com/',
+    date: '05/2026',
+  };
+  const p = parseIpuz(meta);
+  assert.equal(p.subtitle, 'A small one');
+  assert.equal(p.author, 'Test Author');
+  assert.equal(p.publisher, 'Test Publisher');
+  assert.equal(p.publisherUrl, 'https://example.com/');
+  assert.equal(p.date, '05/2026');
+});
+
+test('parseIpuz defaults missing optional metadata to empty strings', () => {
+  const p = parseIpuz(tinyIpuz);
+  assert.equal(p.subtitle, '');
+  assert.equal(p.author, '');
+  assert.equal(p.publisher, '');
+  assert.equal(p.publisherUrl, '');
+  assert.equal(p.date, '');
 });
 
 test('computeNumbering numbers every cell that starts an entry, including 1-letter entries', () => {
@@ -121,7 +147,7 @@ test('computeNumbering populates acrossStarts and downStarts with positions and 
   );
 });
 
-import { createInitialState } from '../engine.js';
+import { createInitialState } from '../../engine.js';
 
 test('createInitialState seeds empty entries, locked, and a sensible cursor', () => {
   const p = parseIpuz(tinyIpuz);
@@ -134,7 +160,7 @@ test('createInitialState seeds empty entries, locked, and a sensible cursor', ()
   assert.equal(s.solvedAt, null);
 });
 
-import { typeLetter } from '../engine.js';
+import { typeLetter } from '../../engine.js';
 
 test('typeLetter writes uppercase at cursor and advances within word', () => {
   const p = parseIpuz(tinyIpuz);
@@ -162,13 +188,14 @@ test('typeLetter respects direction down', () => {
   assert.deepEqual(s.cursor, { r: 1, c: 0 });
 });
 
-test('typeLetter is a no-op on a locked cell', () => {
+test('typeLetter overrides a locked cell and clears its lock', () => {
   const p = parseIpuz(tinyIpuz);
   let s = createInitialState(p);
   s = { ...s, locked: { '0,0': true }, entries: { '0,0': 'A' } };
   const after = typeLetter(s, p, 'Z');
-  assert.equal(after.entries['0,0'], 'A');
-  assert.deepEqual(after.cursor, s.cursor);
+  assert.equal(after.entries['0,0'], 'Z');
+  assert.equal(after.locked['0,0'], undefined);
+  assert.deepEqual(after.cursor, { r: 0, c: 1 });
 });
 
 test('typeLetter does not mutate input state', () => {
@@ -179,7 +206,7 @@ test('typeLetter does not mutate input state', () => {
   assert.equal(JSON.stringify(s), snapshot);
 });
 
-import { backspace } from '../engine.js';
+import { backspace } from '../../engine.js';
 
 test('backspace on a non-empty cell clears it without moving', () => {
   const p = parseIpuz(tinyIpuz);
@@ -208,7 +235,22 @@ test('backspace at start of word with empty cursor is a no-op', () => {
   assert.equal(JSON.stringify(s), before);
 });
 
-test('backspace skips locked cells when moving back', () => {
+test('backspace on a locked active cell clears entry and lock', () => {
+  const p = parseIpuz(tinyIpuz);
+  let s = createInitialState(p);
+  s = {
+    ...s,
+    cursor: { r: 0, c: 1 },
+    entries: { '0,1': 'B' },
+    locked: { '0,1': true },
+  };
+  s = backspace(s, p);
+  assert.equal(s.entries['0,1'], undefined);
+  assert.equal(s.locked['0,1'], undefined);
+  assert.deepEqual(s.cursor, { r: 0, c: 1 });
+});
+
+test('backspace from an empty cell deletes the previous cell regardless of lock', () => {
   const p = parseIpuz(tinyIpuz);
   let s = createInitialState(p);
   s = {
@@ -218,12 +260,13 @@ test('backspace skips locked cells when moving back', () => {
     locked: { '0,1': true },
   };
   s = backspace(s, p);
-  assert.equal(s.entries['0,0'], undefined);
-  assert.equal(s.entries['0,1'], 'B'); // locked, untouched
-  assert.deepEqual(s.cursor, { r: 0, c: 0 });
+  assert.equal(s.entries['0,1'], undefined);
+  assert.equal(s.locked['0,1'], undefined);
+  assert.equal(s.entries['0,0'], 'A');
+  assert.deepEqual(s.cursor, { r: 0, c: 1 });
 });
 
-import { moveCursor, toggleDirection } from '../engine.js';
+import { moveCursor, toggleDirection } from '../../engine.js';
 
 test('moveCursor walks in the requested direction skipping blocks', () => {
   const p = parseIpuz(tinyIpuz);
@@ -259,7 +302,7 @@ test('toggleDirection flips across<->down without moving', () => {
   assert.equal(toggleDirection(flipped).direction, 'across');
 });
 
-import { tabToWord } from '../engine.js';
+import { tabToWord } from '../../engine.js';
 
 // Note: with this puzzle's non-standard numbering, the tinyIpuz fixture has
 // 8 entries: 1A (ABC), 4A (D), 5A (E), 6A (FGH), 1D (ADF), 2D (B), 3D (CEH), 7D (G).
@@ -304,7 +347,7 @@ test('tabToWord starting from a non-start cell jumps to the next word, not the c
   assert.deepEqual({ cursor: s.cursor, direction: s.direction }, { cursor: { r: 1, c: 0 }, direction: 'across' });
 });
 
-import { clickCell } from '../engine.js';
+import { clickCell } from '../../engine.js';
 
 test('clickCell on a different cell moves cursor and keeps direction', () => {
   const p = parseIpuz(tinyIpuz);
@@ -329,7 +372,7 @@ test('clickCell on a block cell is a no-op', () => {
   assert.deepEqual(after, s);
 });
 
-import { isCorrect, wrongCells, isSolved, setAutoCheck } from '../engine.js';
+import { isCorrect, wrongCells, isSolved, setAutoCheck } from '../../engine.js';
 
 test('isCorrect true when entry matches solution', () => {
   const p = parseIpuz(tinyIpuz);
@@ -370,7 +413,7 @@ test('setAutoCheck toggles flag immutably', () => {
   assert.equal(s.autoCheck, false);
 });
 
-import { revealLetter, revealWord, revealPuzzle, clearAll } from '../engine.js';
+import { revealLetter, revealWord, revealPuzzle, clearAll } from '../../engine.js';
 
 test('revealLetter writes solution and locks the active cell', () => {
   const p = parseIpuz(tinyIpuz);
@@ -426,7 +469,7 @@ test('clearAll wipes entries, locked, and solvedAt; preserves cursor/direction/a
   assert.equal(cleared.direction, 'down');
 });
 
-import { saveState, loadState } from '../engine.js';
+import { saveState, loadState } from '../../engine.js';
 
 function fakeStorage() {
   const map = new Map();

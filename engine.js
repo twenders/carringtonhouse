@@ -27,6 +27,9 @@ export function parseIpuz(ipuz) {
     title: ipuz.title ?? '',
     subtitle: ipuz.subtitle ?? '',
     author: ipuz.author ?? '',
+    publisher: ipuz.publisher ?? '',
+    publisherUrl: ipuz.publisher_url ?? '',
+    date: ipuz.date ?? '',
     cells,
     numbering: { acrossStarts: [], downStarts: [] },
   };
@@ -133,14 +136,17 @@ export function typeLetter(state, puzzle, letter) {
   const { r, c } = state.cursor;
   const cell = puzzle.cells[r][c];
   if (cell.isBlock) return state;
-  if (state.locked[key(r, c)]) return state;
   const upper = String(letter).toUpperCase();
   if (!/^[A-Z]$/.test(upper)) return state;
-  const newEntries = { ...state.entries, [key(r, c)]: upper };
+  const k = key(r, c);
+  const newEntries = { ...state.entries, [k]: upper };
+  const newLocked = { ...state.locked };
+  delete newLocked[k];
   const next = nextCellInDirection(puzzle, r, c, state.direction);
   return {
     ...state,
     entries: newEntries,
+    locked: newLocked,
     cursor: next ?? state.cursor,
   };
 }
@@ -164,21 +170,19 @@ export function backspace(state, puzzle) {
   const k = key(r, c);
   if (state.entries[k]) {
     const newEntries = { ...state.entries };
+    const newLocked = { ...state.locked };
     delete newEntries[k];
-    return { ...state, entries: newEntries };
+    delete newLocked[k];
+    return { ...state, entries: newEntries, locked: newLocked };
   }
-  // Active cell empty: walk backward across locked cells.
-  let cur = { r, c };
-  while (true) {
-    const prev = prevCellInWord(puzzle, cur.r, cur.c, state.direction);
-    if (!prev) return state;
-    if (!state.locked[key(prev.r, prev.c)]) {
-      const newEntries = { ...state.entries };
-      delete newEntries[key(prev.r, prev.c)];
-      return { ...state, entries: newEntries, cursor: prev };
-    }
-    cur = prev;
-  }
+  const prev = prevCellInWord(puzzle, r, c, state.direction);
+  if (!prev) return state;
+  const pk = key(prev.r, prev.c);
+  const newEntries = { ...state.entries };
+  const newLocked = { ...state.locked };
+  delete newEntries[pk];
+  delete newLocked[pk];
+  return { ...state, entries: newEntries, locked: newLocked, cursor: prev };
 }
 
 export function moveCursor(state, puzzle, dr, dc) {
@@ -325,8 +329,8 @@ export function saveState(state, puzzle, storage = globalThis.localStorage) {
       state,
     });
     storage.setItem(storageKey(puzzle), payload);
-  } catch (e) {
-    if (typeof console !== 'undefined') console.warn('saveState failed:', e);
+  } catch {
+    // Storage write failed (quota, private mode, etc.); state stays in memory.
   }
 }
 
