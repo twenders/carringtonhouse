@@ -39,3 +39,20 @@ bundle exec jekyll serve
 Then open `http://localhost:4000/mm/`.
 
 Do NOT open `index.html` via `file://` — `fetch('./*.ipuz')` requires HTTP.
+
+## Planned: puzzle picker dropdown
+
+Goal: a `<select>` in the toolbar that lists all puzzles and defaults to the latest, with the current `?p=` query string still working as an override.
+
+Static hosts can't list directories, so we need a manifest file the app can fetch. Sketch:
+
+1. Add `puzzles.json` next to the `.ipuz` files. Keep entries in chronological order (oldest first, last entry = latest):
+   ```json
+   [
+     { "file": "26-05-universe.ipuz", "title": "Universe", "date": "2026-05" }
+   ]
+   ```
+2. In `app.js` `bootstrap()`, fetch `./puzzles.json` before the puzzle itself. Build a `<select>` populated from the manifest; on `change`, update the URL with `?p=<file>` and reload (or re-init the engine in place).
+3. Default puzzle = last entry in the manifest. This replaces the hardcoded fallback in `app.js`, so adding a new puzzle becomes "drop the file + append one line to `puzzles.json`" — no `app.js` edit needed.
+
+`puzzles.json` itself is just a regular static file; Jekyll will copy it through unchanged. No `_config.yml` change required.
