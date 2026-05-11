@@ -8,6 +8,8 @@ import {
 const $ = (sel) => document.querySelector(sel);
 const $grid = $('#grid');
 const $title = $('#title');
+const $subtitle = $('#subtitle');
+const $author = $('#author');
 
 let puzzle = null;
 let state = null;
@@ -245,6 +247,10 @@ async function bootstrap() {
   }
   puzzle = parseIpuz(raw);
   $title.textContent = puzzle.title || 'Crossword';
+  $subtitle.textContent = puzzle.subtitle;
+  $subtitle.hidden = !puzzle.subtitle;
+  $author.textContent = puzzle.author ? `By ${puzzle.author}` : '';
+  $author.hidden = !puzzle.author;
   state = loadState(puzzle) ?? createInitialState(puzzle);
   marks = new Set();
   $autoCheck.checked = state.autoCheck;

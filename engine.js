@@ -25,6 +25,8 @@ export function parseIpuz(ipuz) {
   const puzzle = {
     rows, cols, id,
     title: ipuz.title ?? '',
+    subtitle: ipuz.subtitle ?? '',
+    author: ipuz.author ?? '',
     cells,
     numbering: { acrossStarts: [], downStarts: [] },
   };

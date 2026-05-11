@@ -29,8 +29,21 @@
     padding: 12px; gap: 12px;
     min-height: 100vh;
   }
+  #puzzle-header {
+    text-align: center;
+    display: flex; flex-direction: column; gap: 2px;
+  }
   h1 {
-    font-size: 1.1rem; margin: 0; font-weight: 600; text-align: center;
+    font-size: 1.1rem; margin: 0; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  #subtitle {
+    font-size: 0.85rem; margin: 0; font-weight: 400;
+    color: var(--muted); font-style: italic;
+  }
+  #author {
+    font-size: 0.8rem; margin: 0; font-weight: 400;
+    color: var(--muted);
   }
   #toolbar {
     display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center;
@@ -91,7 +104,11 @@
 </style>
 </head>
 <body>
-  <h1 id="title">Crossword</h1>
+  <header id="puzzle-header">
+    <h1 id="title">Crossword</h1>
+    <p id="subtitle" hidden></p>
+    <p id="author" hidden></p>
+  </header>
 
   <div id="toolbar" role="toolbar" aria-label="Crossword controls">
     <label><input type="checkbox" id="auto-check"> Auto-check</label>
