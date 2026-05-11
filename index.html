@@ -41,22 +41,92 @@
     font-size: 0.85rem; margin: 0; font-weight: 400;
     color: var(--muted); font-style: italic;
   }
-  #author {
+  #author, #publisher {
     font-size: 0.8rem; margin: 0; font-weight: 400;
     color: var(--muted);
   }
+  #publisher a { color: inherit; text-decoration: underline; }
+  #toolbar #help-menu > summary {
+    width: 32px; padding: 6px 0; justify-content: center;
+    font-weight: 700;
+  }
+  #toolbar #help-menu .menu-content {
+    left: auto; right: 0;
+    min-width: 260px; max-width: 320px;
+    white-space: normal; padding: 12px;
+    text-align: left;
+  }
+  .help-heading {
+    font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--muted); margin: 0 0 6px; font-weight: 600;
+  }
+  .help-heading:not(:first-child) { margin-top: 14px; }
+  .help-list { margin: 0; padding: 0 0 0 1.1em; font-size: 0.85rem; line-height: 1.4; }
+  .help-list li { margin: 0; }
+  .help-list kbd {
+    font: inherit; font-size: 0.85em;
+    background: #f0f0f0; border: 1px solid #ccc; border-radius: 3px;
+    padding: 0 4px; margin: 0 1px;
+  }
+  .puzzle-select {
+    font: inherit; font-size: 0.85rem;
+    padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px;
+    background: #fff; width: 100%;
+  }
+  .upload-button {
+    font: inherit; font-size: 0.85rem;
+    padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px;
+    background: #f6f6f6; cursor: pointer; margin-top: 6px; width: 100%;
+  }
+  .upload-button:active { background: #e6e6e6; }
+  .puzzle-upload-error {
+    font-size: 0.75rem; color: var(--wrong);
+    margin-top: 4px;
+  }
+  .picker-item {
+    font: inherit; padding: 8px 12px; border: none; background: transparent;
+    border-radius: 4px; cursor: pointer; text-align: left; color: inherit;
+    text-transform: none; letter-spacing: 0;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .picker-item:hover { background: #f0f0f0; }
+  .picker-item:active { background: #e6e6e6; }
+  .picker-item[aria-current="true"] { background: #eef3fa; }
+  .picker-item .picker-item-title { font-size: 0.9rem; font-weight: 500; }
+  .picker-item .picker-item-date { font-size: 0.75rem; color: var(--muted); }
   #toolbar {
     display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center;
   }
-  #toolbar button, #toolbar label {
+  #toolbar > button, #toolbar > details > summary {
     font: inherit; padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px;
     background: #f6f6f6; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 4px;
+    user-select: none;
   }
-  #toolbar button:active { background: #e6e6e6; }
-  #toolbar label { display: inline-flex; align-items: center; gap: 6px; }
+  #toolbar > button:active, #toolbar > details > summary:active { background: #e6e6e6; }
+  #toolbar details.menu { position: relative; }
+  #toolbar details.menu > summary { list-style: none; }
+  #toolbar details.menu > summary::-webkit-details-marker { display: none; }
+  #toolbar details.menu[open] > summary { background: #e6e6e6; }
+  #toolbar .chev { font-size: 0.75em; line-height: 1; }
+  #toolbar .menu-content {
+    position: absolute; top: calc(100% + 4px); left: 0;
+    background: #fff; border: 1px solid #ccc; border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    padding: 4px; min-width: 100%; white-space: nowrap;
+    z-index: 5;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  #toolbar .menu-item {
+    font: inherit; padding: 8px 12px; border: none; background: transparent;
+    text-align: left; border-radius: 4px; cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+  }
+  #toolbar .menu-item:hover { background: #f0f0f0; }
+  #toolbar .menu-item:active { background: #e6e6e6; }
   #grid {
     display: grid;
-    width: min(96vw, calc(100vh - 180px));
+    width: min(96vw, max(320px, calc(100lvh - 180px)));
     aspect-ratio: 1 / 1;
     background: var(--grid-line);
     gap: 1px; border: 1px solid var(--grid-line);
@@ -66,7 +136,7 @@
   .cell {
     background: var(--bg); position: relative;
     display: flex; align-items: center; justify-content: center;
-    font-size: clamp(14px, 4vw, 28px); font-weight: 600;
+    font-size: clamp(14px, 4vmin, 28px); font-weight: 600;
     cursor: pointer;
   }
   .cell.block { background: var(--block); cursor: default; }
@@ -108,15 +178,45 @@
     <h1 id="title">Crossword</h1>
     <p id="subtitle" hidden></p>
     <p id="author" hidden></p>
+    <p id="publisher" hidden></p>
   </header>
 
   <div id="toolbar" role="toolbar" aria-label="Crossword controls">
-    <label><input type="checkbox" id="auto-check"> Auto-check</label>
-    <button id="check">Check</button>
-    <button id="reveal-letter">Reveal letter</button>
-    <button id="reveal-word">Reveal word</button>
-    <button id="reveal-puzzle">Reveal puzzle</button>
-    <button id="clear">Clear</button>
+    <details class="menu">
+      <summary>Check<span class="chev">▾</span></summary>
+      <div class="menu-content">
+        <label class="menu-item"><input type="checkbox" id="auto-check"> Auto-check</label>
+        <button id="check" class="menu-item" type="button">Check puzzle</button>
+      </div>
+    </details>
+    <details class="menu">
+      <summary>Reveal<span class="chev">▾</span></summary>
+      <div class="menu-content">
+        <button id="reveal-letter" class="menu-item" type="button">Letter</button>
+        <button id="reveal-word" class="menu-item" type="button">Word</button>
+        <button id="reveal-puzzle" class="menu-item" type="button">Puzzle</button>
+      </div>
+    </details>
+    <button id="clear" type="button">Clear</button>
+    <details class="menu" id="help-menu">
+      <summary aria-label="Help">?</summary>
+      <div class="menu-content">
+        <h3 class="help-heading">How to play</h3>
+        <ul class="help-list">
+          <li>Tap a cell to focus it; tap again to flip across/down.</li>
+          <li>Type letters to fill.</li>
+          <li><kbd>Backspace</kbd> clears the current cell or steps back.</li>
+          <li><kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> move the cursor.</li>
+          <li><kbd>Space</kbd> switches between across and down.</li>
+          <li><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> jump to next / previous word.</li>
+        </ul>
+        <h3 class="help-heading">Choose puzzle</h3>
+        <select id="puzzle-select" class="puzzle-select"></select>
+        <button id="upload-puzzle" type="button" class="upload-button">Upload .ipuz…</button>
+        <input id="upload-input" type="file" accept=".ipuz,application/json,.json" hidden>
+        <div id="upload-error" class="puzzle-upload-error" hidden></div>
+      </div>
+    </details>
   </div>
 
   <div id="grid" role="grid" aria-label="Crossword grid"></div>

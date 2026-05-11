@@ -10,14 +10,15 @@ const $grid = $('#grid');
 const $title = $('#title');
 const $subtitle = $('#subtitle');
 const $author = $('#author');
+const $publisher = $('#publisher');
 
 let puzzle = null;
 let state = null;
 let marks = new Set();   // "r,c" cells flagged wrong (used when autoCheck is off)
 
 export function renderGrid(p) {
-  $grid.style.gridTemplateColumns = `repeat(${p.cols}, 1fr)`;
-  $grid.style.gridTemplateRows = `repeat(${p.rows}, 1fr)`;
+  $grid.style.gridTemplateColumns = `repeat(${p.cols}, minmax(0, 1fr))`;
+  $grid.style.gridTemplateRows = `repeat(${p.rows}, minmax(0, 1fr))`;
   $grid.replaceChildren();
   for (let r = 0; r < p.rows; r++) {
     for (let c = 0; c < p.cols; c++) {
@@ -174,20 +175,40 @@ const $revealLetter  = $('#reveal-letter');
 const $revealWord    = $('#reveal-word');
 const $revealPuzzle  = $('#reveal-puzzle');
 const $clear       = $('#clear');
+function allMenus() { return document.querySelectorAll('details.menu'); }
+
+function closeMenus() {
+  allMenus().forEach(m => { m.open = false; });
+}
+
+function wireMenu(m) {
+  m.addEventListener('toggle', () => {
+    if (m.open) allMenus().forEach(other => { if (other !== m) other.open = false; });
+  });
+}
+
+allMenus().forEach(wireMenu);
+document.addEventListener('click', (ev) => {
+  for (const m of allMenus()) {
+    if (m.open && !m.contains(ev.target)) m.open = false;
+  }
+});
 
 $autoCheck.addEventListener('change', () => {
   setState(setAutoCheck(state, $autoCheck.checked));
 });
 
 $check.addEventListener('click', () => {
-  if (state.autoCheck) return;
+  closeMenus();
+  if (state.autoCheck) { focusHidden(); return; }
   marks = new Set(engineWrong(state, puzzle).map(([r, c]) => `${r},${c}`));
   renderState(puzzle, state, marks);
   focusHidden();
 });
 
-$revealLetter.addEventListener('click',  () => { clearMark(state.cursor.r, state.cursor.c); setState(revealLetter(state, puzzle));  focusHidden(); });
+$revealLetter.addEventListener('click',  () => { closeMenus(); clearMark(state.cursor.r, state.cursor.c); setState(revealLetter(state, puzzle));  focusHidden(); });
 $revealWord.addEventListener('click', () => {
+  closeMenus();
   const cell = puzzle.cells[state.cursor.r][state.cursor.c];
   const word = state.direction === 'across' ? cell.acrossWord : cell.downWord;
   if (word) {
@@ -200,9 +221,10 @@ $revealWord.addEventListener('click', () => {
   setState(revealWord(state, puzzle));
   focusHidden();
 });
-$revealPuzzle.addEventListener('click',  () => { marks = new Set(); setState(revealPuzzle(state, puzzle));  focusHidden(); });
+$revealPuzzle.addEventListener('click',  () => { closeMenus(); marks = new Set(); setState(revealPuzzle(state, puzzle));  focusHidden(); });
 
 $clear.addEventListener('click', () => {
+  closeMenus();
   if (!confirm('Clear all your progress?')) return;
   marks = new Set();
   setState(clearAll(state));
@@ -230,27 +252,164 @@ window.addEventListener('keydown', (ev) => {
   if (ev.key === 'Escape' && $overlay.classList.contains('show')) hideOverlay();
 });
 
+async function fetchManifest() {
+  try {
+    const res = await fetch('./puzzles.json', { cache: 'no-store' });
+    if (!res.ok) return [];
+    const list = await res.json();
+    return Array.isArray(list) ? list : [];
+  } catch {
+    return [];
+  }
+}
+
+const UPLOAD_KEY = 'xword-upload-source';
+
+function populatePuzzleSelect(manifest, activeFile) {
+  const sel = document.getElementById('puzzle-select');
+  if (!sel) return;
+  sel.textContent = '';
+  const uploadedRaw = localStorage.getItem(UPLOAD_KEY);
+  if (uploadedRaw) {
+    try {
+      const u = JSON.parse(uploadedRaw);
+      const opt = document.createElement('option');
+      opt.value = 'local';
+      opt.textContent = `(Uploaded) ${u.title || 'Untitled'}`;
+      sel.appendChild(opt);
+    } catch {}
+  }
+  for (let i = manifest.length - 1; i >= 0; i--) {
+    const entry = manifest[i];
+    const opt = document.createElement('option');
+    opt.value = entry.file;
+    opt.textContent = entry.date ? `${entry.title ?? entry.file} (${entry.date})` : (entry.title ?? entry.file);
+    sel.appendChild(opt);
+  }
+  sel.value = activeFile;
+  sel.onchange = () => {
+    location.search = '?p=' + encodeURIComponent(sel.value);
+  };
+}
+
+function wireUpload() {
+  const btn = document.getElementById('upload-puzzle');
+  const input = document.getElementById('upload-input');
+  const err = document.getElementById('upload-error');
+  if (!btn || !input) return;
+  function showError(msg) {
+    if (!err) return;
+    err.textContent = msg;
+    err.hidden = false;
+  }
+  function clearError() {
+    if (!err) return;
+    err.textContent = '';
+    err.hidden = true;
+  }
+  btn.addEventListener('click', () => {
+    clearError();
+    input.value = '';
+    input.click();
+  });
+  input.addEventListener('change', async () => {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    let text, ipuz;
+    try {
+      text = await file.text();
+      ipuz = JSON.parse(text);
+    } catch (e) {
+      showError(`Could not read file: ${e.message}`);
+      return;
+    }
+    try {
+      parseIpuz(ipuz);
+    } catch (e) {
+      showError(`Not a valid .ipuz file: ${e.message}`);
+      return;
+    }
+    try {
+      localStorage.setItem(UPLOAD_KEY, text);
+    } catch {
+      // Quota or private mode — still load in this session, just won't persist.
+    }
+    location.search = '?p=local';
+  });
+}
+
 async function bootstrap() {
   const params = new URLSearchParams(location.search);
-  const url = params.get('p') ?? './26-05-universe.ipuz';
+  const manifest = await fetchManifest();
+  const requestedFile = params.get('p');
+  const defaultFile = manifest.length
+    ? manifest[manifest.length - 1].file
+    : '26-05-universe.ipuz';
+  const file = requestedFile ?? defaultFile;
   let raw;
-  try {
-    const res = await fetch(url, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    raw = await res.json();
-  } catch (e) {
-    $title.textContent = 'Could not load puzzle';
-    $grid.textContent = `Error: ${e.message}. Check that ${url} exists next to crossword.html.`;
-    $grid.style.background = 'transparent';
-    $grid.style.padding = '12px';
-    return;
+  if (file === 'local') {
+    const stored = localStorage.getItem(UPLOAD_KEY);
+    if (!stored) {
+      $title.textContent = 'Could not load puzzle';
+      $grid.textContent = 'No uploaded puzzle found.';
+      $grid.style.background = 'transparent';
+      $grid.style.padding = '12px';
+      return;
+    }
+    try {
+      raw = JSON.parse(stored);
+    } catch (e) {
+      $title.textContent = 'Could not load puzzle';
+      $grid.textContent = `Uploaded puzzle is corrupted: ${e.message}`;
+      $grid.style.background = 'transparent';
+      $grid.style.padding = '12px';
+      return;
+    }
+  } else {
+    const url = `./${file}`;
+    try {
+      const res = await fetch(url, { cache: 'default' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      raw = await res.json();
+    } catch (e) {
+      $title.textContent = 'Could not load puzzle';
+      $grid.textContent = `Cannot find ${url}`;
+      $grid.style.background = 'transparent';
+      $grid.style.padding = '12px';
+      return;
+    }
   }
   puzzle = parseIpuz(raw);
   $title.textContent = puzzle.title || 'Crossword';
+  populatePuzzleSelect(manifest, file);
   $subtitle.textContent = puzzle.subtitle;
   $subtitle.hidden = !puzzle.subtitle;
-  $author.textContent = puzzle.author ? `By ${puzzle.author}` : '';
-  $author.hidden = !puzzle.author;
+  if (puzzle.author) {
+    $author.textContent = `By ${puzzle.author}`;
+    $author.hidden = false;
+  } else {
+    $author.textContent = '';
+    $author.hidden = true;
+  }
+  $publisher.textContent = '';
+  if (puzzle.publisher) {
+    if (puzzle.publisherUrl) {
+      const a = document.createElement('a');
+      a.href = puzzle.publisherUrl;
+      a.textContent = puzzle.publisher;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      $publisher.appendChild(a);
+    } else {
+      $publisher.appendChild(document.createTextNode(puzzle.publisher));
+    }
+    if (puzzle.date) {
+      $publisher.appendChild(document.createTextNode(`, ${puzzle.date}`));
+    }
+    $publisher.hidden = false;
+  } else {
+    $publisher.hidden = true;
+  }
   state = loadState(puzzle) ?? createInitialState(puzzle);
   marks = new Set();
   $autoCheck.checked = state.autoCheck;
@@ -260,4 +419,5 @@ async function bootstrap() {
   if (state.solvedAt) showOverlay();
 }
 
+wireUpload();
 bootstrap();
