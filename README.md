@@ -10,7 +10,7 @@ This README is excluded from the published site via `_config.yml`.
 - `engine.js` — grid + game logic (imported by `app.js`)
 - `puzzles.json` — manifest of available puzzles (one entry per `.ipuz`)
 - `YY-MM-<name>.ipuz` — puzzle data, one file per puzzle (currently `26-05-universe.ipuz`)
-- `ipuz-format.md` — format reference for hand-authoring or generating `.ipuz` files
+- `ipuz-format.html` — standalone format reference for hand-authoring or generating `.ipuz` files
 - `example.ipuz` — minimal 3×3 example demonstrating the format
 
 ## URLs
@@ -36,7 +36,7 @@ The rightmost toolbar button opens a panel with:
 
 - Keyboard / touch shortcuts (how to type, navigate, switch direction, etc.)
 - **Choose puzzle** — a `<select>` populated from `puzzles.json`. Picking switches to that puzzle.
-- **Upload .ipuz…** — load a user-supplied `.ipuz` file. Its source is stored in `localStorage` (key `xword-upload-source`, one slot, overwritten on next upload) and the page navigates to `?p=local`. Survives reloads. See [`ipuz-format.md`](./ipuz-format.md) for the format spec and [`example.ipuz`](./example.ipuz) for a minimal working file.
+- **Upload .ipuz…** — load a user-supplied `.ipuz` file. Its source is stored in `localStorage` (key `xword-upload-source`, one slot, overwritten on next upload) and the page navigates to `?p=local`. Survives reloads. See [`ipuz-format.html`](./ipuz-format.html) for the format spec and [`example.ipuz`](./example.ipuz) for a minimal working file.
 
 ## Editing
 

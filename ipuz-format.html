@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>.ipuz format</title>
+<style>
+  :root {
+    --fg: #111;
+    --bg: #fff;
+    --muted: #666;
+    --rule: #e4e4e4;
+    --code-bg: #f6f6f6;
+    --code-border: #e4e4e4;
+    --link: #2563b3;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.55;
+  }
+  body {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+  }
+  a { color: var(--link); }
+  a:hover { text-decoration: underline; }
+  h1 {
+    font-size: 1.6rem; margin: 0 0 1rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+  h1 code {
+    font-size: 0.95em;
+  }
+  h2 {
+    font-size: 1.2rem; margin: 2rem 0 0.6rem;
+    font-weight: 600;
+  }
+  h3 {
+    font-size: 1rem; margin: 1.4rem 0 0.4rem;
+    font-weight: 600;
+  }
+  p { margin: 0.6rem 0; }
+  ul { padding-left: 1.4em; }
+  li { margin: 0.2rem 0; }
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.9em;
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 3px;
+    padding: 0 4px;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.45;
+  }
+  pre code {
+    background: transparent;
+    border: none;
+    padding: 0;
+    font-size: inherit;
+  }
+  table {
+    border-collapse: collapse;
+    margin: 0.6rem 0;
+    font-size: 0.92rem;
+    width: 100%;
+  }
+  th, td {
+    border-bottom: 1px solid var(--rule);
+    padding: 6px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: var(--code-bg);
+    font-weight: 600;
+  }
+  .back-link {
+    display: inline-block;
+    margin-bottom: 1.2rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .back-link:hover { color: var(--link); text-decoration: underline; }
+</style>
+</head>
+<body>
+  <a class="back-link" href="./">&larr; back to crossword</a>
+
+  <h1><code>.ipuz</code> format for this viewer</h1>
+
+  <p>The viewer accepts standard <a href="http://www.ipuz.org/">.ipuz</a> crossword files (<code>kind</code> = <code>http://ipuz.org/crossword#1</code>). It's just JSON — no need for any tool to create one.</p>
+
+  <p>See <a href="./example.ipuz"><code>example.ipuz</code></a> for a complete working file you can download and edit.</p>
+
+  <h2>Minimal structure</h2>
+
+  <pre><code>{
+  "version": "http://ipuz.org/v1",
+  "kind": ["http://ipuz.org/crossword#1"],
+  "dimensions": { "width": 3, "height": 3 },
+  "puzzle": [
+    ["#",   1,   2],
+    [   3,   0,   0],
+    [   4,   0,   0]
+  ],
+  "solution": [
+    ["#", "A", "B"],
+    ["C", "D", "E"],
+    ["F", "G", "H"]
+  ],
+  "block": "#"
+}</code></pre>
+
+  <p>That renders as a 3×3 grid with a black square in the top-left:</p>
+
+  <pre><code>█ A B
+C D E
+F G H</code></pre>
+
+  <h2>Required fields</h2>
+
+  <table>
+    <thead>
+      <tr><th>Field</th><th>What it is</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>version</code>, <code>kind</code></td><td>Always the values shown above.</td></tr>
+      <tr><td><code>dimensions.width</code> / <code>dimensions.height</code></td><td>Integer grid size.</td></tr>
+      <tr><td><code>puzzle</code></td><td>2D array, <code>height</code> rows × <code>width</code> columns. Use <code>0</code> (or any non-block value) for white cells; the block character for black squares.</td></tr>
+      <tr><td><code>solution</code></td><td>2D array of the same shape, with the solution letter at each white cell and the block character at each black square.</td></tr>
+      <tr><td><code>block</code></td><td>The string used to mark black squares. Conventionally <code>"#"</code>. Both <code>puzzle</code> and <code>solution</code> use this same character.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Recommended metadata</h2>
+
+  <p>Optional, but all of these appear in the header if present:</p>
+
+  <table>
+    <thead>
+      <tr><th>Field</th><th>Example</th><th>Where it shows</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>title</code></td><td><code>"Across the Solar System"</code></td><td>Main title</td></tr>
+      <tr><td><code>subtitle</code></td><td><code>"Antfarm edition"</code></td><td>Under the title (italic)</td></tr>
+      <tr><td><code>author</code></td><td><code>"Carrington House"</code></td><td>"By Carrington House"</td></tr>
+      <tr><td><code>publisher</code></td><td><code>"Mystic Moneymaker"</code></td><td>Publisher line</td></tr>
+      <tr><td><code>publisher_url</code></td><td><code>"https://mysticmoneymaker.com/"</code></td><td>Makes the publisher name a link</td></tr>
+      <tr><td><code>date</code></td><td><code>"05/2026"</code></td><td>Appended after the publisher</td></tr>
+      <tr><td><code>id</code></td><td><code>"26-05-universe"</code></td><td>Used as the localStorage key for player progress. <strong>Set a stable <code>id</code></strong> so editing the puzzle later doesn't invalidate saved progress. If omitted, the viewer hashes <code>title + solution</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>How numbering works</h2>
+
+  <p>The viewer <strong>ignores the integer values in the <code>puzzle</code> array</strong> and recomputes numbering from the block layout. You can put <code>0</code>, <code>1</code>, the actual standard number, or anything else there — it makes no difference to what gets rendered. The example uses sequential numbers just for readability.</p>
+
+  <p>A cell starts an across entry when it has no white cell to its left; it starts a down entry when it has no white cell above. Numbers count up in reading order over cells that start at least one entry.</p>
+
+  <h3>Non-standard rule: single-cell entries</h3>
+
+  <p>Standard crossword rules require words of length ≥ 2. This viewer's numbering rule allows length-1 entries (a white cell completely surrounded by blocks/edges becomes its own numbered entry, both across and down). For most puzzles this never triggers and the rule produces identical numbering to the standard one. If you've got isolated cells you want numbered, they'll be.</p>
+
+  <h2>Clues</h2>
+
+  <p>This viewer doesn't render clues — current puzzles are companions to a printed sheet. The standard <code>clues.Across</code> and <code>clues.Down</code> fields are accepted but ignored, so you can include them without breaking anything.</p>
+
+  <h2>Where this is used</h2>
+
+  <ul>
+    <li><strong>In the deployed site</strong>: drop a new <code>.ipuz</code> next to <code>index.html</code> and append an entry to <a href="./puzzles.json"><code>puzzles.json</code></a>. See the main <a href="./README.md">README</a>.</li>
+    <li><strong>As an upload</strong>: click <code>?</code> → <strong>Upload .ipuz…</strong> to load a local file. The raw JSON is stored in <code>localStorage</code> under <code>xword-upload-source</code> and reachable via <code>?p=local</code>.</li>
+  </ul>
+</body>
+</html>
