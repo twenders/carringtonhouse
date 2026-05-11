@@ -1,0 +1,873 @@
+{
+  "version": "http://ipuz.org/v1",
+  "kind": [
+    "http://ipuz.org/crossword#1"
+  ],
+  "title": "Across the Solar System (and down)",
+  "author": "Carrington House",
+  "copyright": "© 2026",
+  "publisher": "Antfarm and Planetarium",
+  "date": "05/2026",
+  "id": "planets-v2",
+  "dimensions": {
+    "width": 15,
+    "height": 15
+  },
+  "block": "#",
+  "puzzle": [
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      "#",
+      0,
+      0,
+      0,
+      "#",
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      "#",
+      0,
+      0,
+      0,
+      "#",
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      "#",
+      0,
+      0,
+      0,
+      "#",
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      "#",
+      0,
+      "#",
+      "#",
+      0,
+      0,
+      0,
+      "#",
+      "#",
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      "#",
+      "#",
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      "#",
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      "#",
+      0,
+      0,
+      0,
+      "#",
+      0,
+      0,
+      0,
+      0,
+      "#",
+      "#"
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      "#",
+      "#",
+      0,
+      0,
+      0,
+      0,
+      "#"
+    ],
+    [
+      "#",
+      0,
+      0,
+      "#",
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      "#",
+      0,
+      0,
+      "#"
+    ],
+    [
+      "#",
+      0,
+      0,
+      0,
+      0,
+      "#",
+      "#",
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      "#",
+      "#",
+      0,
+      0,
+      0,
+      0,
+      "#",
+      0,
+      0,
+      0,
+      "#",
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      "#",
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      "#",
+      "#",
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      "#",
+      "#",
+      0,
+      0,
+      0,
+      "#",
+      "#",
+      0,
+      "#",
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      "#",
+      0,
+      0,
+      0,
+      "#",
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      "#",
+      0,
+      0,
+      0,
+      "#",
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      "#",
+      0,
+      0,
+      0,
+      "#",
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  ],
+  "solution": [
+    [
+      "M",
+      "E",
+      "R",
+      "C",
+      "U",
+      "R",
+      "Y",
+      "#",
+      "V",
+      "U",
+      "E",
+      "#",
+      "B",
+      "A",
+      "E"
+    ],
+    [
+      "I",
+      "W",
+      "A",
+      "S",
+      "M",
+      "A",
+      "D",
+      "#",
+      "E",
+      "R",
+      "G",
+      "#",
+      "E",
+      "R",
+      "A"
+    ],
+    [
+      "S",
+      "E",
+      "R",
+      "I",
+      "A",
+      "L",
+      "S",
+      "#",
+      "N",
+      "A",
+      "G",
+      "#",
+      "E",
+      "E",
+      "R"
+    ],
+    [
+      "N",
+      "S",
+      "A",
+      "#",
+      "M",
+      "#",
+      "#",
+      "R",
+      "U",
+      "N",
+      "#",
+      "#",
+      "K",
+      "A",
+      "T"
+    ],
+    [
+      "A",
+      "#",
+      "#",
+      "P",
+      "I",
+      "E",
+      "J",
+      "E",
+      "S",
+      "U",
+      "#",
+      "S",
+      "E",
+      "S",
+      "H"
+    ],
+    [
+      "M",
+      "A",
+      "R",
+      "S",
+      "#",
+      "T",
+      "E",
+      "A",
+      "#",
+      "S",
+      "I",
+      "T",
+      "E",
+      "#",
+      "#"
+    ],
+    [
+      "E",
+      "C",
+      "O",
+      "H",
+      "O",
+      "T",
+      "E",
+      "L",
+      "#",
+      "#",
+      "I",
+      "M",
+      "P",
+      "S",
+      "#"
+    ],
+    [
+      "#",
+      "N",
+      "A",
+      "#",
+      "J",
+      "U",
+      "P",
+      "I",
+      "T",
+      "E",
+      "R",
+      "#",
+      "E",
+      "A",
+      "#"
+    ],
+    [
+      "#",
+      "E",
+      "D",
+      "N",
+      "A",
+      "#",
+      "#",
+      "T",
+      "E",
+      "A",
+      "C",
+      "A",
+      "R",
+      "T",
+      "S"
+    ],
+    [
+      "#",
+      "#",
+      "T",
+      "H",
+      "I",
+      "S",
+      "#",
+      "Y",
+      "R",
+      "S",
+      "#",
+      "I",
+      "S",
+      "E",
+      "E"
+    ],
+    [
+      "P",
+      "R",
+      "O",
+      "S",
+      "#",
+      "A",
+      "R",
+      "T",
+      "I",
+      "E",
+      "S",
+      "T",
+      "#",
+      "#",
+      "E"
+    ],
+    [
+      "L",
+      "E",
+      "R",
+      "#",
+      "#",
+      "T",
+      "O",
+      "V",
+      "#",
+      "#",
+      "C",
+      "#",
+      "N",
+      "E",
+      "H"
+    ],
+    [
+      "U",
+      "N",
+      "U",
+      "#",
+      "S",
+      "U",
+      "N",
+      "#",
+      "U",
+      "P",
+      "A",
+      "B",
+      "O",
+      "V",
+      "E"
+    ],
+    [
+      "T",
+      "E",
+      "I",
+      "#",
+      "I",
+      "R",
+      "A",
+      "#",
+      "R",
+      "O",
+      "L",
+      "L",
+      "B",
+      "A",
+      "R"
+    ],
+    [
+      "O",
+      "W",
+      "N",
+      "#",
+      "A",
+      "N",
+      "N",
+      "#",
+      "N",
+      "E",
+      "P",
+      "T",
+      "U",
+      "N",
+      "E"
+    ]
+  ],
+  "clues": {
+    "Across": [
+      [
+        1,
+        "Freddie of Queen"
+      ],
+      [
+        8,
+        "View in Paris"
+      ],
+      [
+        11,
+        "Endearing term for significant other"
+      ],
+      [
+        14,
+        "Sorry about my cross words?"
+      ],
+      [
+        15,
+        "A bit of work in physics"
+      ],
+      [
+        16,
+        "A long period"
+      ],
+      [
+        17,
+        "They are sent out in installments"
+      ],
+      [
+        18,
+        "Incessantly bother"
+      ],
+      [
+        19,
+        "Racket or auction ender"
+      ],
+      [
+        20,
+        "* Spy org., at its core unsafe"
+      ],
+      [
+        21,
+        "Bond's boss"
+      ],
+      [
+        22,
+        "Boston April activity"
+      ],
+      [
+        23,
+        "Kit ___ Bar or Klub"
+      ],
+      [
+        24,
+        "Favorite letter of Yellowpages name optimizers"
+      ],
+      [
+        25,
+        "Lacrimosa's \"____ Domine\""
+      ],
+      [
+        28,
+        "* Jam in a cheese shop?"
+      ],
+      [
+        29,
+        "Red land of rovers"
+      ],
+      [
+        32,
+        "Chai"
+      ],
+      [
+        33,
+        "A place that sounds like it looks?"
+      ],
+      [
+        35,
+        "LEED-certified vacation lodging"
+      ],
+      [
+        37,
+        "Little devils"
+      ],
+      [
+        39,
+        "Symbolizes sodium"
+      ],
+      [
+        40,
+        "A planet, by Jove!"
+      ],
+      [
+        43,
+        "First initials of 67 down"
+      ],
+      [
+        44,
+        "Mode of the Incredibles"
+      ],
+      [
+        46,
+        "Trolleys for cups and saucers"
+      ],
+      [
+        49,
+        "Not that"
+      ],
+      [
+        51,
+        "Circuits around 65 across, briefly"
+      ],
+      [
+        52,
+        "\"Ah now I understand\""
+      ],
+      [
+        53,
+        "Not cons"
+      ],
+      [
+        55,
+        "* Inside we wear ties, too pretentious?"
+      ],
+      [
+        58,
+        "The base of a natural log"
+      ],
+      [
+        59,
+        "Suffix of hand or but"
+      ],
+      [
+        60,
+        "Mazel ___ !"
+      ],
+      [
+        61,
+        "A successor to the programming language B"
+      ],
+      [
+        62,
+        "Humanities funding agcy."
+      ],
+      [
+        64,
+        "Academic branch of the United Nations"
+      ],
+      [
+        65,
+        "At the center of our system"
+      ],
+      [
+        66,
+        "Location of the sky"
+      ],
+      [
+        69,
+        "Maneuver to set spacecraft on trajectory to intersect our sphere of influence, briefly"
+      ],
+      [
+        70,
+        "Radio's Glass"
+      ],
+      [
+        71,
+        "Helps you if you flip over"
+      ],
+      [
+        72,
+        "Newmans ___, food brand"
+      ],
+      [
+        73,
+        "This wild carrot queen's lace"
+      ],
+      [
+        74,
+        "A blue giant"
+      ]
+    ],
+    "Down": [
+      [
+        1,
+        "Identify incorrectly"
+      ],
+      [
+        2,
+        "Ladies with wool coats"
+      ],
+      [
+        3,
+        "\"___ Rasputin\""
+      ],
+      [
+        4,
+        "TV show with Miami and Vegas spin offs"
+      ],
+      [
+        5,
+        "Miso soup"
+      ],
+      [
+        6,
+        "NC state capital"
+      ],
+      [
+        7,
+        "Units used for textiles, in short"
+      ],
+      [
+        8,
+        "Flytrap of note"
+      ],
+      [
+        9,
+        "Take care pronouncing this gods name in polite company"
+      ],
+      [
+        10,
+        "Extremely early bird"
+      ],
+      [
+        11,
+        "Hive minders"
+      ],
+      [
+        12,
+        "Grey ones are up for debate"
+      ],
+      [
+        13,
+        "Home of astronomers and entomologists"
+      ],
+      [
+        22,
+        "Real Housewives, for example"
+      ],
+      [
+        25,
+        "Unimpressed sound"
+      ],
+      [
+        26,
+        "And you, to Brutus"
+      ],
+      [
+        27,
+        "American car brand with in-group hand wave"
+      ],
+      [
+        28,
+        "CT Amtrack stop serving nation's fastest train"
+      ],
+      [
+        30,
+        "Teen outbreak"
+      ],
+      [
+        31,
+        "Route toward the Colosseum"
+      ],
+      [
+        34,
+        "Acronym that's easy to forget"
+      ],
+      [
+        36,
+        "CA town sounds like surprised greeting"
+      ],
+      [
+        38,
+        "What a good meal might do"
+      ],
+      [
+        41,
+        "-yaki, like chicken"
+      ],
+      [
+        42,
+        "* Multiple 58 across, comfortably"
+      ],
+      [
+        45,
+        "UK health system"
+      ],
+      [
+        47,
+        "British river islet, or he says in Latin"
+      ],
+      [
+        48,
+        "Listen"
+      ],
+      [
+        50,
+        "Big in astronomical circles"
+      ],
+      [
+        53,
+        "Demoted 20 years ago"
+      ],
+      [
+        54,
+        "Library book action"
+      ],
+      [
+        56,
+        "Saoirse of Little Women"
+      ],
+      [
+        57,
+        "Hawk at a big game"
+      ],
+      [
+        62,
+        "Big name in Asian fusion"
+      ],
+      [
+        63,
+        "Not an odd name for a man"
+      ],
+      [
+        65,
+        "Singer songwriter with a famous hairdo"
+      ],
+      [
+        66,
+        "Cremains container"
+      ],
+      [
+        67,
+        "* Poet who wrote prose regularly"
+      ],
+      [
+        68,
+        "Letter sandwich"
+      ]
+    ]
+  }
+}

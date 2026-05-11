@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Crossword</title>
+<style>
+  :root {
+    --fg: #111;
+    --bg: #fff;
+    --block: #111;
+    --grid-line: #111;
+    --active: #fff5a8;
+    --active-word: #d8e7ff;
+    --wrong: #d23;
+    --locked: #2563b3;
+    --muted: #666;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    overscroll-behavior: none;
+  }
+  body {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 12px; gap: 12px;
+    min-height: 100vh;
+  }
+  h1 {
+    font-size: 1.1rem; margin: 0; font-weight: 600; text-align: center;
+  }
+  #toolbar {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center;
+  }
+  #toolbar button, #toolbar label {
+    font: inherit; padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px;
+    background: #f6f6f6; cursor: pointer;
+  }
+  #toolbar button:active { background: #e6e6e6; }
+  #toolbar label { display: inline-flex; align-items: center; gap: 6px; }
+  #grid {
+    display: grid;
+    width: min(96vw, calc(100vh - 180px));
+    aspect-ratio: 1 / 1;
+    background: var(--grid-line);
+    gap: 1px; border: 1px solid var(--grid-line);
+    user-select: none;
+    touch-action: manipulation;
+  }
+  .cell {
+    background: var(--bg); position: relative;
+    display: flex; align-items: center; justify-content: center;
+    font-size: clamp(14px, 4vw, 28px); font-weight: 600;
+    cursor: pointer;
+  }
+  .cell.block { background: var(--block); cursor: default; }
+  .cell .num {
+    position: absolute; top: 1px; left: 2px;
+    font-size: 0.5em; font-weight: 500; color: var(--muted);
+    line-height: 1;
+  }
+  .cell.active { background: var(--active); }
+  .cell.active-word { background: var(--active-word); }
+  .cell.active.active-word { background: var(--active); }
+  .cell.wrong .letter { color: var(--wrong); }
+  .cell.wrong::after {
+    content: ""; position: absolute; top: 0; right: 0;
+    width: 0; height: 0;
+    border-top: 8px solid var(--wrong);
+    border-left: 8px solid transparent;
+  }
+  .cell.locked .letter { color: var(--locked); }
+  #hidden-input {
+    position: fixed; left: -9999px; top: 0;
+    opacity: 0; pointer-events: none;
+    font-size: 16px; /* prevents iOS auto-zoom */
+  }
+  #overlay {
+    position: fixed; inset: 0; background: rgba(255, 255, 255, 0.92);
+    display: none; align-items: center; justify-content: center; flex-direction: column; gap: 12px;
+    z-index: 10;
+  }
+  #overlay.show { display: flex; }
+  #overlay h2 { font-size: 2rem; margin: 0; }
+  #overlay button {
+    padding: 8px 16px; font: inherit; border: 1px solid #ccc; border-radius: 6px; background: #f6f6f6;
+  }
+</style>
+</head>
+<body>
+  <h1 id="title">Crossword</h1>
+
+  <div id="toolbar" role="toolbar" aria-label="Crossword controls">
+    <label><input type="checkbox" id="auto-check"> Auto-check</label>
+    <button id="check">Check</button>
+    <button id="reveal-letter">Reveal letter</button>
+    <button id="reveal-word">Reveal word</button>
+    <button id="reveal-puzzle">Reveal puzzle</button>
+    <button id="clear">Clear</button>
+  </div>
+
+  <div id="grid" role="grid" aria-label="Crossword grid"></div>
+
+  <input id="hidden-input"
+         type="text"
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="characters"
+         spellcheck="false"
+         inputmode="text"
+         aria-hidden="true"
+         tabindex="-1">
+
+  <div id="overlay" role="dialog" aria-modal="true" aria-label="Solved">
+    <h2 id="overlay-title">Solved!</h2>
+    <button id="overlay-close">Close</button>
+  </div>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
