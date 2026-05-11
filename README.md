@@ -30,6 +30,10 @@ Old puzzles stay reachable via the `?p=` query string.
 
 Edit files directly in this folder — no build step. Commit, push, done.
 
+## Development docs
+
+`_dev/` holds the spec and plan documents that drove the original build of this viewer — see `_dev/docs/superpowers/specs/` and `_dev/docs/superpowers/plans/`. Reference only; not served by the site (excluded via `_config.yml`).
+
 ## Local testing
 
 From the repo root:
