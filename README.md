@@ -39,13 +39,17 @@ The rightmost toolbar button opens a panel with:
 - **Choose puzzle** — a `<select>` populated from `puzzles.json`. Picking switches to that puzzle.
 - **Upload .ipuz…** — load a user-supplied `.ipuz` file. Its source is stored in `localStorage` (key `xword-upload-source`, one slot, overwritten on next upload) and the page navigates to `?p=local`. Survives reloads. See [`ipuz-format.html`](./ipuz-format.html) for the format spec and [`example.ipuz`](./example.ipuz) for a minimal working file.
 
-## Editing
+## Development
 
-Edit files directly — no build step. Commit, push, done.
+**No build step.** Edit the files in place; every push to `main` triggers a Netlify deploy that publishes the repo root verbatim. Typical flow:
 
-## Local testing
+1. Edit `index.html` / `app.js` / `engine.js` / a `.ipuz` / etc.
+2. `git commit && git push`
+3. Netlify rebuilds and serves the change within ~30 s. The deploy status is the badge at the top of this README.
 
-The page can't be opened via `file://` (`fetch('./*.ipuz')` requires HTTP). Use a local HTTP server. The included no-cache dev server is recommended for real-device testing over LAN — iOS Safari otherwise aggressively caches HTML/JS without explicit headers:
+### Local preview
+
+The page can't be opened via `file://` because `fetch('./*.ipuz')` needs HTTP. Use any local HTTP server; the included no-cache one is handy for real-device testing over LAN (iOS Safari otherwise aggressively caches HTML/JS):
 
 ```
 python3 _dev/serve.py 8124 .
@@ -53,6 +57,14 @@ python3 _dev/serve.py 8124 .
 
 Then open `http://<your-mac-ip>:8124/` on the device (find your IP with `ipconfig getifaddr en0`).
 
-## Development docs
+### Tests
+
+Engine logic has a Node test suite (no DOM):
+
+```
+cd _dev && node --test tests/*.test.js
+```
+
+### Development docs
 
 `_dev/` holds the spec and plan documents that drove the original build of this viewer — see `_dev/docs/superpowers/specs/` and `_dev/docs/superpowers/plans/`. Reference only; not served.
