@@ -113,9 +113,9 @@
   "kind": ["http://ipuz.org/crossword#1"],
   "dimensions": { "width": 3, "height": 3 },
   "puzzle": [
-    ["#",   1,   2],
-    [   3,   0,   0],
-    [   4,   0,   0]
+    ["#",   0,   0],
+    [  0,   0,   0],
+    [  0,   0,   0]
   ],
   "solution": [
     ["#", "A", "B"],
@@ -140,7 +140,7 @@ F G H</code></pre>
     <tbody>
       <tr><td><code>version</code>, <code>kind</code></td><td>Always the values shown above.</td></tr>
       <tr><td><code>dimensions.width</code> / <code>dimensions.height</code></td><td>Integer grid size.</td></tr>
-      <tr><td><code>puzzle</code></td><td>2D array, <code>height</code> rows × <code>width</code> columns. Use <code>0</code> (or any non-block value) for white cells; the block character for black squares.</td></tr>
+      <tr><td><code>puzzle</code></td><td>2D array, <code>height</code> rows × <code>width</code> columns. Use <code>0</code> for white cells (the .ipuz spec value meaning "auto-number"); use the block character for black squares. See <a href="#numbering">How numbering works</a> for the custom-label option.</td></tr>
       <tr><td><code>solution</code></td><td>2D array of the same shape, with the solution letter at each white cell and the block character at each black square.</td></tr>
       <tr><td><code>block</code></td><td>The string used to mark black squares. Conventionally <code>"#"</code>. Both <code>puzzle</code> and <code>solution</code> use this same character.</td></tr>
     </tbody>
@@ -165,11 +165,20 @@ F G H</code></pre>
     </tbody>
   </table>
 
-  <h2>How numbering works</h2>
+  <h2 id="numbering">How numbering works</h2>
 
-  <p>The viewer <strong>ignores the integer values in the <code>puzzle</code> array</strong> and recomputes numbering from the block layout. You can put <code>0</code>, <code>1</code>, the actual standard number, or anything else there — it makes no difference to what gets rendered. The example uses sequential numbers just for readability.</p>
+  <p>The <strong>word structure</strong> (where entries start and end, what cells belong to which word) is always derived from the block layout — never from the integers in the <code>puzzle</code> array. A cell starts an across entry when it has no white cell to its left; it starts a down entry when it has no white cell above.</p>
 
-  <p>A cell starts an across entry when it has no white cell to its left; it starts a down entry when it has no white cell above. Numbers count up in reading order over cells that start at least one entry.</p>
+  <p>The integers in <code>puzzle</code> only control <strong>display labels</strong> (the small number shown in the corner of a cell):</p>
+
+  <ul>
+    <li><strong>Recommended (per ipuz spec):</strong> set every white cell to <code>0</code>. The viewer auto-numbers entry-start cells in reading order: 1, 2, 3, …</li>
+    <li><strong>Custom labels:</strong> put a positive integer at a cell to use it as that cell's label instead of the auto value. Auto-numbering still advances at every entry-start (positive ints don't shift the counter), so mixing <code>0</code>s and explicit numbers is fine — but you're responsible for avoiding accidental duplicates if you go off-spec.</li>
+    <li>Positive integers on cells that <em>don't</em> start an entry are shown as labels too, but have no effect on navigation. This is purely cosmetic.</li>
+    <li>Any non-positive-integer value (<code>null</code>, strings, negatives, floats) is treated like <code>0</code>.</li>
+  </ul>
+
+  <p>Use custom labels only for intentionally non-standard numbering (theme puzzles, decorative cells). For an ordinary crossword, all <code>0</code>s is the right choice.</p>
 
   <h3>Non-standard rule: single-cell entries</h3>
 

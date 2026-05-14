@@ -10,11 +10,17 @@ export function parseIpuz(ipuz) {
     const row = [];
     for (let c = 0; c < cols; c++) {
       const sol = ipuz.solution[r][c];
-      const isBlock = sol === blockChar || ipuz.puzzle[r][c] === blockChar;
+      const rawVal = ipuz.puzzle[r][c];
+      const isBlock = sol === blockChar || rawVal === blockChar;
+      const rawLabel =
+        typeof rawVal === 'number' && Number.isInteger(rawVal) && rawVal > 0
+          ? rawVal
+          : null;
       row.push({
         isBlock,
         solution: isBlock ? null : String(sol).toUpperCase(),
         number: null,
+        rawLabel,
         acrossWord: null,
         downWord: null,
       });
@@ -54,7 +60,7 @@ export function computeNumbering(puzzle) {
 
   const acrossStarts = [];
   const downStarts = [];
-  let n = 0;
+  let autoCounter = 0;
 
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
@@ -62,14 +68,21 @@ export function computeNumbering(puzzle) {
       if (cell.isBlock) continue;
       const startsAcross = !isWhite(r, c - 1);
       const startsDown   = !isWhite(r - 1, c);
-      if (!startsAcross && !startsDown) continue;
-      n += 1;
-      cell.number = n;
+      const startsEntry  = startsAcross || startsDown;
+
+      if (startsEntry) {
+        autoCounter += 1;
+        cell.number = cell.rawLabel ?? autoCounter;
+      } else if (cell.rawLabel !== null) {
+        // Non-entry cell with an explicit positive-int label: shown but cosmetic.
+        cell.number = cell.rawLabel;
+      }
+
       if (startsAcross) {
         let len = 0;
         let cc = c;
         while (isWhite(r, cc)) { cc++; len++; }
-        const entry = { num: n, r, c, len, dir: 'across' };
+        const entry = { num: cell.number, r, c, len, dir: 'across' };
         acrossStarts.push(entry);
         for (let i = 0; i < len; i++) cells[r][c + i].acrossWord = entry;
       }
@@ -77,7 +90,7 @@ export function computeNumbering(puzzle) {
         let len = 0;
         let rr = r;
         while (isWhite(rr, c)) { rr++; len++; }
-        const entry = { num: n, r, c, len, dir: 'down' };
+        const entry = { num: cell.number, r, c, len, dir: 'down' };
         downStarts.push(entry);
         for (let i = 0; i < len; i++) cells[r + i][c].downWord = entry;
       }

@@ -11,9 +11,9 @@ const tinyIpuz = {
   kind: ['http://ipuz.org/crossword#1'],
   dimensions: { width: 3, height: 3 },
   puzzle: [
-    [1, 0, 2],
+    [0, 0, 0],
     [0, '#', 0],
-    [3, 0, 0],
+    [0, 0, 0],
   ],
   solution: [
     ['A', 'B', 'C'],
@@ -123,6 +123,69 @@ test('computeNumbering links down-word membership; every white cell has a downWo
   assert.equal(p.cells[1][2].downWord.num, 3);
   assert.equal(p.cells[2][2].downWord.num, 3);
   assert.equal(p.cells[2][1].downWord.num, 7); // G, 1-letter
+});
+
+test('computeNumbering honors explicit positive-integer labels on entry-start cells', () => {
+  // Same layout as tinyIpuz, but with explicit labels in puzzle[].
+  // The auto-counter still advances in reading order at every entry-start;
+  // any cell with a positive integer overrides that auto value as its display label.
+  const labeled = {
+    ...tinyIpuz,
+    puzzle: [
+      [10, 0, 0],
+      [0, '#', 0],
+      [0, 0, 99],
+    ],
+  };
+  const p = parseIpuz(labeled);
+  // Entry-start cells in reading order: (0,0), (0,1), (0,2), (1,0), (1,2), (2,0), (2,1).
+  // Auto-counter would give 1..7. Explicit positive ints override.
+  assert.equal(p.cells[0][0].number, 10); // explicit
+  assert.equal(p.cells[0][1].number, 2);  // auto
+  assert.equal(p.cells[0][2].number, 3);  // auto
+  assert.equal(p.cells[1][0].number, 4);  // auto
+  assert.equal(p.cells[1][2].number, 5);  // auto
+  assert.equal(p.cells[2][0].number, 6);  // auto
+  assert.equal(p.cells[2][1].number, 7);  // auto
+  // (2,2) is not an entry start, but has explicit label 99 → still shown.
+  assert.equal(p.cells[2][2].number, 99);
+});
+
+test('computeNumbering uses display label as entry num (acrossStarts/downStarts)', () => {
+  const labeled = {
+    ...tinyIpuz,
+    puzzle: [
+      [10, 0, 0],
+      [0, '#', 0],
+      [0, 0, 0],
+    ],
+  };
+  const p = parseIpuz(labeled);
+  // The entry at (0,0) should have num 10, not the auto value 1.
+  const a1 = p.numbering.acrossStarts.find(w => w.r === 0 && w.c === 0);
+  const d1 = p.numbering.downStarts.find(w => w.r === 0 && w.c === 0);
+  assert.equal(a1.num, 10);
+  assert.equal(d1.num, 10);
+  // Cells in that across word should reference the same entry.
+  assert.equal(p.cells[0][0].acrossWord.num, 10);
+  assert.equal(p.cells[0][2].acrossWord.num, 10);
+});
+
+test('computeNumbering ignores non-positive-integer values in puzzle[] (treats as 0)', () => {
+  // Strings (other than block), nulls, floats, and negatives all fall back to auto-numbering.
+  const odd = {
+    ...tinyIpuz,
+    puzzle: [
+      [null, 'foo', -3],
+      [1.5, '#', 0],
+      [0, 0, 0],
+    ],
+  };
+  const p = parseIpuz(odd);
+  assert.equal(p.cells[0][0].number, 1);
+  assert.equal(p.cells[0][1].number, 2);
+  assert.equal(p.cells[0][2].number, 3);
+  assert.equal(p.cells[1][0].number, 4);
 });
 
 test('computeNumbering populates acrossStarts and downStarts with positions and lengths', () => {

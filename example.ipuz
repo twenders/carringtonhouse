@@ -7,9 +7,9 @@
   "id": "example-tiny",
   "dimensions": { "width": 3, "height": 3 },
   "puzzle": [
-    ["#",   1,   2],
-    [   3,   0,   0],
-    [   4,   0,   0]
+    ["#",   0,   0],
+    [  0,   0,   0],
+    [  0,   0,   0]
   ],
   "solution": [
     ["#", "A", "B"],
