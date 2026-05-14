@@ -303,7 +303,7 @@ window.addEventListener('keydown', (ev) => {
 
 async function fetchManifest() {
   try {
-    const res = await fetch('./puzzles.json', { cache: 'no-store' });
+    const res = await fetch('./puzzles/puzzles.json', { cache: 'no-store' });
     if (!res.ok) return [];
     const list = await res.json();
     return Array.isArray(list) ? list : [];
@@ -415,7 +415,7 @@ async function bootstrap() {
       return;
     }
   } else {
-    const url = `./${file}`;
+    const url = `./puzzles/${file}`;
     try {
       const res = await fetch(url, { cache: 'default' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);

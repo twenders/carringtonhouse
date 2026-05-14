@@ -2,11 +2,6 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseIpuz } from '../../engine.js';
 
-test('engine module loads', async () => {
-  const engine = await import('../../engine.js');
-  assert.equal(typeof engine, 'object');
-});
-
 const tinyIpuz = {
   kind: ['http://ipuz.org/crossword#1'],
   dimensions: { width: 3, height: 3 },

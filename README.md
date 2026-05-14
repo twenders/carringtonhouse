@@ -9,21 +9,19 @@ Standalone single-page crossword viewer. No build step, no dependencies. Deploye
 - `index.html` — page shell + styles, loads `app.js` as an ES module
 - `app.js` — UI / input / rendering
 - `engine.js` — grid + game logic (imported by `app.js`)
-- `puzzles.json` — manifest of available puzzles (one entry per `.ipuz`)
-- `YY-MM-<name>.ipuz` — puzzle data, one file per puzzle (currently `26-05-universe.ipuz`)
+- `puzzles/` — manifest, puzzle files, and a short README. See [`puzzles/README.md`](./puzzles/README.md).
 - `ipuz-format.html` — format reference for hand-authoring or generating `.ipuz` files
-- `example.ipuz` — minimal 3×3 example demonstrating the format
 
 ## URLs
 
-- `https://carringtonhouse.netlify.app/` → loads the last entry in `puzzles.json` (the latest)
-- `https://carringtonhouse.netlify.app/?p=YY-MM-<name>.ipuz` → loads a specific puzzle from the directory
+- `https://carringtonhouse.netlify.app/` → loads the last entry in `puzzles/puzzles.json` (the latest)
+- `https://carringtonhouse.netlify.app/?p=YY-MM-<name>.ipuz` → loads `puzzles/YY-MM-<name>.ipuz` (the `puzzles/` prefix is implicit)
 - `https://carringtonhouse.netlify.app/?p=local` → loads the puzzle most recently uploaded via the `?` menu
 
 ## Adding a new puzzle
 
-1. Drop `YY-MM-<name>.ipuz` into this directory.
-2. Append an entry to `puzzles.json` (chronological order, oldest first — last entry is the default):
+1. Drop `YY-MM-<name>.ipuz` into the `puzzles/` directory.
+2. Append an entry to `puzzles/puzzles.json` (chronological order, oldest first — last entry is the default). The `file` field is just the filename — the `puzzles/` prefix is implicit:
    ```json
    { "file": "YY-MM-<name>.ipuz", "title": "<title>", "date": "YYYY-MM" }
    ```
@@ -36,8 +34,8 @@ Older puzzles stay reachable via `?p=` and the puzzle picker in the `?` menu.
 The rightmost toolbar button opens a panel with:
 
 - Keyboard / touch shortcuts (how to type, navigate, switch direction, etc.)
-- **Choose puzzle** — a `<select>` populated from `puzzles.json`. Picking switches to that puzzle.
-- **Upload .ipuz…** — load a user-supplied `.ipuz` file. Its source is stored in `localStorage` (key `xword-upload-source`, one slot, overwritten on next upload) and the page navigates to `?p=local`. Survives reloads. See [`ipuz-format.html`](./ipuz-format.html) for the format spec and [`example.ipuz`](./example.ipuz) for a minimal working file.
+- **Choose puzzle** — a `<select>` populated from `puzzles/puzzles.json`. Picking switches to that puzzle.
+- **Upload .ipuz…** — load a user-supplied `.ipuz` file. Its source is stored in `localStorage` (key `xword-upload-source`, one slot, overwritten on next upload) and the page navigates to `?p=local`. Survives reloads. See [`ipuz-format.html`](./ipuz-format.html) for the format spec and [`puzzles/example.ipuz`](./puzzles/example.ipuz) for a minimal working file.
 
 ## Development
 
@@ -49,7 +47,7 @@ The rightmost toolbar button opens a panel with:
 
 ### Local preview
 
-The page can't be opened via `file://` because `fetch('./*.ipuz')` needs HTTP. Use any local HTTP server; the included no-cache one is handy for real-device testing over LAN (iOS Safari otherwise aggressively caches HTML/JS):
+The page can't be opened via `file://` because `fetch('./puzzles/*.ipuz')` needs HTTP. Use any local HTTP server; the included no-cache one is handy for real-device testing over LAN (iOS Safari otherwise aggressively caches HTML/JS):
 
 ```
 python3 _dev/serve.py 8124 .

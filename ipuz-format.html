@@ -104,7 +104,7 @@
 
   <p>The viewer accepts standard <a href="http://www.ipuz.org/">.ipuz</a> crossword files (<code>kind</code> = <code>http://ipuz.org/crossword#1</code>). It's just JSON — no need for any tool to create one.</p>
 
-  <p>See <a href="./example.ipuz"><code>example.ipuz</code></a> for a complete working file you can download and edit.</p>
+  <p>See <a href="./puzzles/example.ipuz"><code>example.ipuz</code></a> for a complete working file you can download and edit.</p>
 
   <h2>Minimal structure</h2>
 
@@ -208,7 +208,7 @@ F G H</code></pre>
   <h2>Where this is used</h2>
 
   <ul>
-    <li><strong>In the deployed site</strong>: drop a new <code>.ipuz</code> next to <code>index.html</code> and append an entry to <a href="./puzzles.json"><code>puzzles.json</code></a>. See the main <a href="./README.md">README</a>.</li>
+    <li><strong>In the deployed site</strong>: drop a new <code>.ipuz</code> into the <code>puzzles/</code> directory and append an entry to <a href="./puzzles/puzzles.json"><code>puzzles/puzzles.json</code></a>. See the main <a href="./README.md">README</a>.</li>
     <li><strong>As an upload</strong>: click <code>?</code> → <strong>Upload .ipuz…</strong> to load a local file. The raw JSON is stored in <code>localStorage</code> under <code>xword-upload-source</code> and reachable via <code>?p=local</code>.</li>
   </ul>
 </body>
