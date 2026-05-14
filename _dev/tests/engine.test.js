@@ -76,6 +76,63 @@ test('parseIpuz defaults missing optional metadata to empty strings', () => {
   assert.equal(p.date, '');
 });
 
+test('parseIpuz extracts clues into across/down lookup maps keyed by number', () => {
+  const withClues = {
+    ...tinyIpuz,
+    clues: {
+      Across: [[1, 'First across'], [4, 'Fourth across']],
+      Down: [[2, 'Second down'], [3, 'Third down']],
+    },
+  };
+  const p = parseIpuz(withClues);
+  assert.equal(p.clues.across[1], 'First across');
+  assert.equal(p.clues.across[4], 'Fourth across');
+  assert.equal(p.clues.down[2], 'Second down');
+  assert.equal(p.clues.down[3], 'Third down');
+  assert.equal(p.hasClues, true);
+});
+
+test('parseIpuz reports hasClues=false when no clues', () => {
+  const p = parseIpuz(tinyIpuz);
+  assert.equal(p.hasClues, false);
+  assert.deepEqual(p.clues, { across: {}, down: {} });
+});
+
+test('parseIpuz reports hasClues=false when clues object has empty arrays', () => {
+  const empty = { ...tinyIpuz, clues: { Across: [], Down: [] } };
+  const p = parseIpuz(empty);
+  assert.equal(p.hasClues, false);
+});
+
+test('parseIpuz reports hasClues=true if only one direction has clues', () => {
+  const onlyAcross = { ...tinyIpuz, clues: { Across: [[1, 'x']] } };
+  const p = parseIpuz(onlyAcross);
+  assert.equal(p.hasClues, true);
+  assert.equal(p.clues.across[1], 'x');
+  assert.deepEqual(p.clues.down, {});
+});
+
+test('parseIpuz silently skips malformed clue entries', () => {
+  const malformed = {
+    ...tinyIpuz,
+    clues: {
+      Across: [
+        [1, 'ok'],
+        [2],                    // missing text
+        ['not-a-num', 'text'],  // bad number
+        [3, 42],                // non-string text
+        null,                   // not an array
+        [4, 'fine'],
+      ],
+    },
+  };
+  const p = parseIpuz(malformed);
+  assert.equal(p.clues.across[1], 'ok');
+  assert.equal(p.clues.across[4], 'fine');
+  assert.equal(p.clues.across[2], undefined);
+  assert.equal(p.clues.across[3], undefined);
+});
+
 test('computeNumbering numbers every cell that starts an entry, including 1-letter entries', () => {
   const p = parseIpuz(tinyIpuz);
   // Tiny grid:

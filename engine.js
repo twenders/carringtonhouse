@@ -28,6 +28,7 @@ export function parseIpuz(ipuz) {
     cells.push(row);
   }
   const id = ipuz.id ?? synthesizeId(ipuz);
+  const clues = extractClues(ipuz.clues);
   const puzzle = {
     rows, cols, id,
     title: ipuz.title ?? '',
@@ -38,9 +39,29 @@ export function parseIpuz(ipuz) {
     date: ipuz.date ?? '',
     cells,
     numbering: { acrossStarts: [], downStarts: [] },
+    clues,
+    hasClues: Object.keys(clues.across).length + Object.keys(clues.down).length > 0,
   };
   computeNumbering(puzzle);
   return puzzle;
+}
+
+function extractClues(raw) {
+  const out = { across: {}, down: {} };
+  if (!raw || typeof raw !== 'object') return out;
+  const pull = (list, target) => {
+    if (!Array.isArray(list)) return;
+    for (const entry of list) {
+      if (!Array.isArray(entry) || entry.length < 2) continue;
+      const [num, text] = entry;
+      if (!Number.isInteger(num) || num <= 0) continue;
+      if (typeof text !== 'string') continue;
+      target[num] = text;
+    }
+  };
+  pull(raw.Across, out.across);
+  pull(raw.Down, out.down);
+  return out;
 }
 
 function synthesizeId(ipuz) {
