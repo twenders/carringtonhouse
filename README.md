@@ -35,7 +35,7 @@ The rightmost toolbar button opens a panel with:
 
 - Keyboard / touch shortcuts (how to type, navigate, switch direction, etc.)
 - **Choose puzzle** — a `<select>` populated from `puzzles/puzzles.json`. Picking switches to that puzzle.
-- **Upload .ipuz…** — load a user-supplied `.ipuz` file. Its source is stored in `localStorage` (key `xword-upload-source`, one slot, overwritten on next upload) and the page navigates to `?p=local`. Survives reloads. See [`ipuz-format.html`](./ipuz-format.html) for the format spec and [`puzzles/example.ipuz`](./puzzles/example.ipuz) for a minimal working file.
+- **Upload .ipuz…** — load a user-supplied `.ipuz` file. Its source is stored in `localStorage` (key `xword-upload-source`, one slot, overwritten on next upload) and the page navigates to `?p=local`. Survives reloads. See [`ipuz-format.html`](./ipuz-format.html) ([rendered here](https://carringtonhouse.netlify.app/ipuz-format.html)) for the format spec and [`puzzles/example.ipuz`](./puzzles/example.ipuz) for a minimal working file.
 
 ## Development
 
