@@ -1,7 +1,7 @@
 import {
   parseIpuz, createInitialState, wrongCells,
   typeLetter, backspace, toggleDirection, moveCursor, tabToWord, clickCell,
-  setAutoCheck, revealLetter, revealWord, revealPuzzle, clearAll,
+  setAutoCheck, revealLetter, revealWord, revealPuzzle, clearWord, clearAll,
   wrongCells as engineWrong, isSolved, saveState, loadState,
 } from './engine.js';
 
@@ -208,7 +208,8 @@ const $check       = $('#check');
 const $revealLetter  = $('#reveal-letter');
 const $revealWord    = $('#reveal-word');
 const $revealPuzzle  = $('#reveal-puzzle');
-const $clear       = $('#clear');
+const $clearWord   = $('#clear-word');
+const $clearPuzzle = $('#clear-puzzle');
 function allMenus() { return document.querySelectorAll('details.menu'); }
 
 function closeMenus() {
@@ -257,9 +258,23 @@ $revealWord.addEventListener('click', () => {
 });
 $revealPuzzle.addEventListener('click',  () => { closeMenus(); marks = new Set(); setState(revealPuzzle(state, puzzle));  focusHidden(); });
 
-$clear.addEventListener('click', () => {
+$clearWord.addEventListener('click', () => {
   closeMenus();
-  if (!confirm('Clear all your progress?')) return;
+  const cell = puzzle.cells[state.cursor.r][state.cursor.c];
+  const word = state.direction === 'across' ? cell.acrossWord : cell.downWord;
+  if (word) {
+    for (let i = 0; i < word.len; i++) {
+      const wr = word.r + (state.direction === 'down' ? i : 0);
+      const wc = word.c + (state.direction === 'across' ? i : 0);
+      clearMark(wr, wc);
+    }
+  }
+  setState(clearWord(state, puzzle));
+  focusHidden();
+});
+
+$clearPuzzle.addEventListener('click', () => {
+  closeMenus();
   marks = new Set();
   setState(clearAll(state));
   focusHidden();

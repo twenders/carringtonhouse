@@ -128,6 +128,8 @@
   }
   #toolbar .menu-item:hover { background: #f0f0f0; }
   #toolbar .menu-item:active { background: #e6e6e6; }
+  #toolbar .menu-item-stack { flex-direction: column; align-items: flex-start; gap: 2px; }
+  #toolbar .menu-item-note { font-size: 0.75em; color: var(--muted, #666); }
   #grid {
     display: grid;
     width: min(96vw, max(320px, calc(100lvh - 180px)));
@@ -228,7 +230,16 @@
         <button id="reveal-puzzle" class="menu-item" type="button">Puzzle</button>
       </div>
     </details>
-    <button id="clear" type="button">Clear</button>
+    <details class="menu">
+      <summary>Clear<span class="chev">▾</span></summary>
+      <div class="menu-content">
+        <button id="clear-word" class="menu-item" type="button">Word</button>
+        <button id="clear-puzzle" class="menu-item menu-item-stack" type="button">
+          <span>Puzzle</span>
+          <span class="menu-item-note">Irreversible!</span>
+        </button>
+      </div>
+    </details>
     <details class="menu" id="help-menu">
       <summary aria-label="Help">?</summary>
       <div class="menu-content">

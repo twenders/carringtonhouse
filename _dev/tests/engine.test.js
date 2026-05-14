@@ -533,7 +533,7 @@ test('setAutoCheck toggles flag immutably', () => {
   assert.equal(s.autoCheck, false);
 });
 
-import { revealLetter, revealWord, revealPuzzle, clearAll } from '../../engine.js';
+import { revealLetter, revealWord, revealPuzzle, clearWord, clearAll } from '../../engine.js';
 
 test('revealLetter writes solution and locks the active cell', () => {
   const p = parseIpuz(tinyIpuz);
@@ -574,6 +574,27 @@ test('revealPuzzle fills every white cell and locks them; does not set solvedAt'
   assert.equal(s.entries['1,2'], 'E');
   assert.equal(s.locked['1,2'], true);
   assert.equal(s.solvedAt, null);
+});
+
+test('clearWord clears entries and locked for active word only', () => {
+  const p = parseIpuz(tinyIpuz);
+  let s = createInitialState(p);
+  s = {
+    ...s,
+    cursor: { r: 0, c: 1 },
+    direction: 'across',
+    entries: { '0,0': 'A', '0,1': 'B', '0,2': 'C', '1,2': 'E' },
+    locked: { '0,0': true, '0,2': true, '1,2': true },
+  };
+  const cleared = clearWord(s, p);
+  assert.equal(cleared.entries['0,0'], undefined);
+  assert.equal(cleared.entries['0,1'], undefined);
+  assert.equal(cleared.entries['0,2'], undefined);
+  assert.equal(cleared.locked['0,0'], undefined);
+  assert.equal(cleared.locked['0,2'], undefined);
+  // Cells outside the active word are untouched.
+  assert.equal(cleared.entries['1,2'], 'E');
+  assert.equal(cleared.locked['1,2'], true);
 });
 
 test('clearAll wipes entries, locked, and solvedAt; preserves cursor/direction/autoCheck', () => {

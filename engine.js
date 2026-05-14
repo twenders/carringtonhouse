@@ -349,6 +349,22 @@ export function revealPuzzle(state, puzzle) {
   return { ...state, entries, locked };
 }
 
+export function clearWord(state, puzzle) {
+  const { r, c } = state.cursor;
+  const cell = puzzle.cells[r][c];
+  const word = state.direction === 'across' ? cell.acrossWord : cell.downWord;
+  if (!word) return state;
+  const entries = { ...state.entries };
+  const locked = { ...state.locked };
+  for (let i = 0; i < word.len; i++) {
+    const wr = word.r + (state.direction === 'down' ? i : 0);
+    const wc = word.c + (state.direction === 'across' ? i : 0);
+    delete entries[key(wr, wc)];
+    delete locked[key(wr, wc)];
+  }
+  return { ...state, entries, locked };
+}
+
 export function clearAll(state) {
   return { ...state, entries: {}, locked: {}, solvedAt: null };
 }
