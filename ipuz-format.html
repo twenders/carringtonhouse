@@ -186,7 +186,24 @@ F G H</code></pre>
 
   <h2>Clues</h2>
 
-  <p>This viewer doesn't render clues — current puzzles are companions to a printed sheet. The standard <code>clues.Across</code> and <code>clues.Down</code> fields are accepted but ignored, so you can include them without breaking anything.</p>
+  <p>If the .ipuz includes a <code>clues</code> object with <code>Across</code> and/or <code>Down</code> arrays, the viewer renders a clue bar directly below the grid. The clue for the currently selected word is shown, with <code>&lsaquo;</code> / <code>&rsaquo;</code> buttons that navigate to the previous / next word (same order as <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd>).</p>
+
+  <p>Format follows the .ipuz spec — each entry is a <code>[number, "clue text"]</code> pair:</p>
+
+  <pre><code>"clues": {
+  "Across": [
+    [1, "First across clue"],
+    [4, "Fourth across clue"]
+  ],
+  "Down": [
+    [1, "First down clue"],
+    [2, "Second down clue"]
+  ]
+}</code></pre>
+
+  <p>The <code>number</code> in each clue is the entry's <strong>display label</strong> — the same value the viewer renders in the cell's corner. For ordinary puzzles (all <code>0</code>s in <code>puzzle</code>) it's just the auto-number. <strong>If you've overridden a label with a custom positive integer in the <code>puzzle</code> array, the clue must key off that custom value, not the auto-number it replaced.</strong> Example: if you set <code>puzzle[0][0] = 10</code> on a cell that would otherwise be auto-numbered <code>1</code>, its clue is <code>[10, "..."]</code>.</p>
+
+  <p>Clue numbers that don't match any entry are ignored. Entries without a matching clue still show the label (e.g. <strong>3A</strong>) but no text. When the <code>clues</code> object is missing or both arrays are empty, the bar is hidden entirely.</p>
 
   <h2>Where this is used</h2>
 

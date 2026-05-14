@@ -11,6 +11,10 @@ const $title = $('#title');
 const $subtitle = $('#subtitle');
 const $author = $('#author');
 const $publisher = $('#publisher');
+const $clueBar = $('#clue-bar');
+const $clueText = $('#clue-text');
+const $cluePrev = $('#clue-prev');
+const $clueNext = $('#clue-next');
 
 let puzzle = null;
 let state = null;
@@ -75,6 +79,25 @@ export function renderState(p, s, wrongMarks) {
     el.classList.toggle('wrong', liveWrong.has(k));
     const letterEl = el.querySelector('.letter');
     letterEl.textContent = s.entries[k] ?? '';
+  }
+  renderClue(p, s);
+}
+
+function renderClue(p, s) {
+  if (!p.hasClues) return;
+  const cell = p.cells[s.cursor.r][s.cursor.c];
+  if (cell.isBlock) { $clueText.textContent = ''; return; }
+  const word = s.direction === 'across' ? cell.acrossWord : cell.downWord;
+  if (!word) { $clueText.textContent = ''; return; }
+  const dirSuffix = s.direction === 'across' ? 'A' : 'D';
+  const clueText = p.clues[s.direction][word.num];
+  $clueText.replaceChildren();
+  const label = document.createElement('span');
+  label.className = 'clue-label';
+  label.textContent = `${word.num}${dirSuffix}`;
+  $clueText.appendChild(label);
+  if (clueText) {
+    $clueText.appendChild(document.createTextNode(clueText));
   }
 }
 
@@ -165,6 +188,17 @@ $grid.addEventListener('click', (ev) => {
   const r = +target.dataset.r; const c = +target.dataset.c;
   if (puzzle.cells[r][c].isBlock) return;
   setState(clickCell(state, puzzle, r, c));
+  focusHidden();
+});
+
+$cluePrev.addEventListener('click', () => {
+  if (!puzzle || !state) return;
+  setState(tabToWord(state, puzzle, true));
+  focusHidden();
+});
+$clueNext.addEventListener('click', () => {
+  if (!puzzle || !state) return;
+  setState(tabToWord(state, puzzle, false));
   focusHidden();
 });
 
@@ -413,6 +447,8 @@ async function bootstrap() {
   state = loadState(puzzle) ?? createInitialState(puzzle);
   marks = new Set();
   $autoCheck.checked = state.autoCheck;
+  $clueBar.hidden = !puzzle.hasClues;
+  document.body.classList.toggle('has-clues', puzzle.hasClues);
   renderGrid(puzzle);
   renderState(puzzle, state, marks);
   focusHidden();

@@ -16,5 +16,17 @@
     ["C", "D", "E"],
     ["F", "G", "H"]
   ],
-  "block": "#"
+  "block": "#",
+  "clues": {
+    "Across": [
+      [1, "First two letters of the alphabet"],
+      [3, "Three consecutive letters starting with C"],
+      [4, "F, G, and H"]
+    ],
+    "Down": [
+      [1, "1st, 4th, and 7th letters"],
+      [2, "2nd, 5th, and 8th letters"],
+      [3, "First letters of 'cat' and 'fox'"]
+    ]
+  }
 }

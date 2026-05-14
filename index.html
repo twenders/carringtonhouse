@@ -137,6 +137,9 @@
     user-select: none;
     touch-action: manipulation;
   }
+  body.has-clues #grid {
+    width: min(96vw, max(320px, calc(100lvh - 240px)));
+  }
   .cell {
     background: var(--bg); position: relative;
     display: flex; align-items: center; justify-content: center;
@@ -160,6 +163,30 @@
     border-left: 8px solid transparent;
   }
   .cell.locked .letter { color: var(--locked); }
+  #clue-bar {
+    display: flex; align-items: stretch;
+    width: min(96vw, max(320px, calc(100lvh - 180px)));
+    background: var(--active-word);
+    border-radius: 4px;
+    font-size: 0.95rem;
+  }
+  #clue-bar[hidden] { display: none; }
+  .clue-nav {
+    font: inherit; font-size: 1.3rem; font-weight: 600;
+    background: transparent; border: none;
+    color: var(--fg); cursor: pointer;
+    min-width: 44px; padding: 0 14px;
+    display: flex; align-items: center; justify-content: center;
+    user-select: none;
+  }
+  .clue-nav:active { background: rgba(0, 0, 0, 0.06); }
+  #clue-text {
+    flex: 1; padding: 10px 4px;
+    line-height: 1.35;
+  }
+  #clue-text .clue-label {
+    font-weight: 700; margin-right: 0.4em;
+  }
   #hidden-input {
     position: fixed; left: -9999px; top: 0;
     opacity: 0; pointer-events: none;
@@ -225,6 +252,12 @@
   </div>
 
   <div id="grid" role="grid" aria-label="Crossword grid"></div>
+
+  <div id="clue-bar" hidden>
+    <button class="clue-nav" id="clue-prev" type="button" aria-label="Previous clue">&lsaquo;</button>
+    <span id="clue-text"></span>
+    <button class="clue-nav" id="clue-next" type="button" aria-label="Next clue">&rsaquo;</button>
+  </div>
 
   <input id="hidden-input"
          type="text"
