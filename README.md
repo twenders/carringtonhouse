@@ -1,7 +1,8 @@
-# mm — crossword puzzles
+# Carrington House crossword
 
-Standalone single-page crossword app. No build step, no dependencies.
-This README is excluded from the published site via `_config.yml`.
+[![Netlify Status](https://api.netlify.com/api/v1/badges/a3f9d0d7-b11d-46eb-8034-f5a736775ac8/deploy-status)](https://app.netlify.com/projects/carringtonhouse/deploys)
+
+Standalone single-page crossword viewer. No build step, no dependencies. Deployed at [carringtonhouse.netlify.app](https://carringtonhouse.netlify.app/).
 
 ## Files
 
@@ -10,14 +11,14 @@ This README is excluded from the published site via `_config.yml`.
 - `engine.js` — grid + game logic (imported by `app.js`)
 - `puzzles.json` — manifest of available puzzles (one entry per `.ipuz`)
 - `YY-MM-<name>.ipuz` — puzzle data, one file per puzzle (currently `26-05-universe.ipuz`)
-- `ipuz-format.html` — standalone format reference for hand-authoring or generating `.ipuz` files
+- `ipuz-format.html` — format reference for hand-authoring or generating `.ipuz` files
 - `example.ipuz` — minimal 3×3 example demonstrating the format
 
 ## URLs
 
-- `https://twenders.netlify.app/mm/` → loads the last entry in `puzzles.json` (the latest)
-- `https://twenders.netlify.app/mm/?p=YY-MM-<name>.ipuz` → loads a specific puzzle from the directory
-- `https://twenders.netlify.app/mm/?p=local` → loads the puzzle most recently uploaded via the `?` menu
+- `https://carringtonhouse.netlify.app/` → loads the last entry in `puzzles.json` (the latest)
+- `https://carringtonhouse.netlify.app/?p=YY-MM-<name>.ipuz` → loads a specific puzzle from the directory
+- `https://carringtonhouse.netlify.app/?p=local` → loads the puzzle most recently uploaded via the `?` menu
 
 ## Adding a new puzzle
 
@@ -40,24 +41,18 @@ The rightmost toolbar button opens a panel with:
 
 ## Editing
 
-Edit files directly in this folder — no build step. Commit, push, done.
+Edit files directly — no build step. Commit, push, done.
 
 ## Local testing
 
-From the repo root, with Jekyll for the full site:
-```
-bundle exec jekyll serve
-```
-Then open `http://localhost:4000/mm/`.
+The page can't be opened via `file://` (`fetch('./*.ipuz')` requires HTTP). Use a local HTTP server. The included no-cache dev server is recommended for real-device testing over LAN — iOS Safari otherwise aggressively caches HTML/JS without explicit headers:
 
-For real-device testing over LAN (iOS Safari caches HTML/JS aggressively without explicit headers, so dev edits don't appear; this server sends `Cache-Control: no-store`):
 ```
-python3 mm/_dev/serve.py 8124 mm
+python3 _dev/serve.py 8124 .
 ```
-Then open `http://<your-mac-ip>:8124/` on the device (find IP with `ipconfig getifaddr en0`).
 
-Do NOT open `index.html` via `file://` — `fetch('./*.ipuz')` requires HTTP.
+Then open `http://<your-mac-ip>:8124/` on the device (find your IP with `ipconfig getifaddr en0`).
 
 ## Development docs
 
-`_dev/` holds the spec and plan documents that drove the original build of this viewer — see `_dev/docs/superpowers/specs/` and `_dev/docs/superpowers/plans/`. Reference only; not served by the site (excluded via `_config.yml`).
+`_dev/` holds the spec and plan documents that drove the original build of this viewer — see `_dev/docs/superpowers/specs/` and `_dev/docs/superpowers/plans/`. Reference only; not served.
