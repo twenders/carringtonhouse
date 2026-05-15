@@ -3,6 +3,7 @@ import {
   typeLetter, backspace, toggleDirection, moveCursor, tabToWord, clickCell,
   setAutoCheck, revealLetter, revealWord, revealPuzzle, clearWord, clearAll,
   wrongCells as engineWrong, isSolved, saveState, loadState,
+  loadUploads, saveUploads, addUpload, renameUpload, deleteUpload,
 } from './engine.js';
 
 const $ = (sel) => document.querySelector(sel);
@@ -227,6 +228,9 @@ document.addEventListener('click', (ev) => {
   for (const m of allMenus()) {
     if (m.open && !m.contains(ev.target)) m.open = false;
   }
+  for (const m of document.querySelectorAll('.picker-row-menu[open]')) {
+    if (!m.contains(ev.target)) m.open = false;
+  }
 });
 
 $autoCheck.addEventListener('change', () => {
@@ -312,33 +316,174 @@ async function fetchManifest() {
   }
 }
 
-const UPLOAD_KEY = 'xword-upload-source';
+let currentManifest = [];
+let currentActiveKey = null;
 
-function populatePuzzleSelect(manifest, activeFile) {
-  const sel = document.getElementById('puzzle-select');
-  if (!sel) return;
-  sel.textContent = '';
-  const uploadedRaw = localStorage.getItem(UPLOAD_KEY);
-  if (uploadedRaw) {
-    try {
-      const u = JSON.parse(uploadedRaw);
-      const opt = document.createElement('option');
-      opt.value = 'local';
-      opt.textContent = `(Uploaded) ${u.title || 'Untitled'}`;
-      sel.appendChild(opt);
-    } catch {}
+function navigateToKey(key) {
+  location.search = '?p=' + encodeURIComponent(key);
+}
+
+function buildPuzzleRows(manifest, uploads) {
+  const uploadRows = Object.entries(uploads).map(([slug, e]) => ({
+    kind: 'upload',
+    key: `uploaded:${slug}`,
+    slug,
+    title: e.title || slug,
+    date: e.addedAt || '',
+  }));
+  const hostedRows = manifest.map(m => ({
+    kind: 'hosted',
+    key: m.file,
+    title: m.title || m.file,
+    date: m.date || '',
+  }));
+  const rows = [...uploadRows, ...hostedRows];
+  rows.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  return rows;
+}
+
+function renderPuzzleList() {
+  const list = document.getElementById('puzzle-list');
+  if (!list) return;
+  const uploads = loadUploads();
+  const rows = buildPuzzleRows(currentManifest, uploads);
+  list.textContent = '';
+  for (const row of rows) {
+    const li = document.createElement('li');
+    li.className = 'picker-row';
+    if (row.kind === 'upload') li.dataset.slug = row.slug;
+    if (row.key === currentActiveKey) li.setAttribute('aria-current', 'true');
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'picker-item-button';
+    const titleEl = document.createElement('span');
+    titleEl.className = 'picker-item-title';
+    titleEl.textContent = row.title;
+    btn.appendChild(titleEl);
+    if (row.date) {
+      const dateEl = document.createElement('span');
+      dateEl.className = 'picker-item-date';
+      dateEl.textContent = row.kind === 'upload' ? formatUploadedDate(row.date) : row.date;
+      btn.appendChild(dateEl);
+    }
+    btn.addEventListener('click', () => navigateToKey(row.key));
+    li.appendChild(btn);
+
+    if (row.kind === 'upload') {
+      li.appendChild(buildRowMenu(row));
+    }
+    list.appendChild(li);
   }
-  for (let i = manifest.length - 1; i >= 0; i--) {
-    const entry = manifest[i];
-    const opt = document.createElement('option');
-    opt.value = entry.file;
-    opt.textContent = entry.date ? `${entry.title ?? entry.file} (${entry.date})` : (entry.title ?? entry.file);
-    sel.appendChild(opt);
-  }
-  sel.value = activeFile;
-  sel.onchange = () => {
-    location.search = '?p=' + encodeURIComponent(sel.value);
+}
+
+function formatUploadedDate(iso) {
+  // Render ISO timestamp as YYYY-MM-DD; fall back to whatever's stored.
+  const m = /^(\d{4}-\d{2}-\d{2})/.exec(iso);
+  return m ? `Uploaded ${m[1]}` : `Uploaded ${iso}`;
+}
+
+function buildRowMenu(row) {
+  const details = document.createElement('details');
+  details.className = 'picker-row-menu';
+  const summary = document.createElement('summary');
+  summary.setAttribute('aria-label', 'More options');
+  summary.textContent = '⋮';
+  details.appendChild(summary);
+
+  const content = document.createElement('div');
+  content.className = 'menu-content';
+
+  const renameBtn = document.createElement('button');
+  renameBtn.type = 'button';
+  renameBtn.className = 'menu-item';
+  renameBtn.textContent = 'Rename';
+  renameBtn.addEventListener('click', () => {
+    details.open = false;
+    startRename(row.slug);
+  });
+  content.appendChild(renameBtn);
+
+  const deleteBtn = document.createElement('button');
+  deleteBtn.type = 'button';
+  deleteBtn.className = 'menu-item menu-item-destructive';
+  deleteBtn.textContent = 'Delete';
+  let pending = false;
+  deleteBtn.addEventListener('click', () => {
+    if (!pending) {
+      pending = true;
+      deleteBtn.textContent = 'Confirm delete?';
+      return;
+    }
+    commitDelete(row.slug);
+  });
+  details.addEventListener('toggle', () => {
+    if (!details.open) {
+      pending = false;
+      deleteBtn.textContent = 'Delete';
+    } else {
+      // Close any other open row menus.
+      for (const other of document.querySelectorAll('.picker-row-menu[open]')) {
+        if (other !== details) other.open = false;
+      }
+    }
+  });
+  content.appendChild(deleteBtn);
+
+  details.appendChild(content);
+  return details;
+}
+
+function startRename(slug) {
+  const list = document.getElementById('puzzle-list');
+  if (!list) return;
+  const uploads = loadUploads();
+  if (!uploads[slug]) return;
+  const targetRow = list.querySelector(`.picker-row[data-slug="${CSS.escape(slug)}"]`);
+  if (!targetRow) { renderPuzzleList(); return; }
+  const btn = targetRow.querySelector('.picker-item-button');
+  const menu = targetRow.querySelector('.picker-row-menu');
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'picker-rename-input';
+  input.value = uploads[slug].title;
+  targetRow.replaceChild(input, btn);
+  if (menu) menu.style.display = 'none';
+  input.focus();
+  input.select();
+
+  let done = false;
+  const commit = () => {
+    if (done) return;
+    done = true;
+    const next = renameUpload(loadUploads(), slug, input.value);
+    saveUploads(next.uploads);
+    if (currentActiveKey === `uploaded:${slug}` && next.slug !== slug) {
+      currentActiveKey = `uploaded:${next.slug}`;
+      history.replaceState(null, '', '?p=' + encodeURIComponent(currentActiveKey));
+    }
+    renderPuzzleList();
   };
+  const cancel = () => {
+    if (done) return;
+    done = true;
+    renderPuzzleList();
+  };
+  input.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Enter') { ev.preventDefault(); commit(); }
+    else if (ev.key === 'Escape') { ev.preventDefault(); cancel(); }
+  });
+  input.addEventListener('blur', commit);
+}
+
+function commitDelete(slug) {
+  const next = deleteUpload(loadUploads(), slug);
+  saveUploads(next);
+  if (currentActiveKey === `uploaded:${slug}`) {
+    location.search = '';
+    return;
+  }
+  renderPuzzleList();
 }
 
 function wireUpload() {
@@ -378,59 +523,60 @@ function wireUpload() {
       showError(`Not a valid .ipuz file: ${e.message}`);
       return;
     }
-    try {
-      localStorage.setItem(UPLOAD_KEY, text);
-    } catch {
-      // Quota or private mode — still load in this session, just won't persist.
-    }
-    location.search = '?p=local';
+    const { uploads, slug } = addUpload(loadUploads(), { filename: file.name, raw: text });
+    saveUploads(uploads);
+    navigateToKey(`uploaded:${slug}`);
   });
+}
+
+function showLoadError(msg) {
+  $title.textContent = 'Could not load puzzle';
+  $grid.textContent = msg;
+  $grid.style.background = 'transparent';
+  $grid.style.padding = '12px';
 }
 
 async function bootstrap() {
   const params = new URLSearchParams(location.search);
   const manifest = await fetchManifest();
-  const requestedFile = params.get('p');
-  const defaultFile = manifest.length
+  currentManifest = manifest;
+  const requested = params.get('p');
+  const defaultKey = manifest.length
     ? manifest[manifest.length - 1].file
     : '26-05-universe.ipuz';
-  const file = requestedFile ?? defaultFile;
+  const key = requested ?? defaultKey;
+  currentActiveKey = key;
   let raw;
-  if (file === 'local') {
-    const stored = localStorage.getItem(UPLOAD_KEY);
-    if (!stored) {
-      $title.textContent = 'Could not load puzzle';
-      $grid.textContent = 'No uploaded puzzle found.';
-      $grid.style.background = 'transparent';
-      $grid.style.padding = '12px';
+  if (key.startsWith('uploaded:')) {
+    const slug = key.slice('uploaded:'.length);
+    const entry = loadUploads()[slug];
+    if (!entry) {
+      showLoadError('No uploaded puzzle found at that name.');
+      renderPuzzleList();
       return;
     }
     try {
-      raw = JSON.parse(stored);
+      raw = JSON.parse(entry.raw);
     } catch (e) {
-      $title.textContent = 'Could not load puzzle';
-      $grid.textContent = `Uploaded puzzle is corrupted: ${e.message}`;
-      $grid.style.background = 'transparent';
-      $grid.style.padding = '12px';
+      showLoadError(`Uploaded puzzle is corrupted: ${e.message}`);
+      renderPuzzleList();
       return;
     }
   } else {
-    const url = `./puzzles/${file}`;
+    const url = `./puzzles/${key}`;
     try {
       const res = await fetch(url, { cache: 'default' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       raw = await res.json();
     } catch (e) {
-      $title.textContent = 'Could not load puzzle';
-      $grid.textContent = `Cannot find ${url}`;
-      $grid.style.background = 'transparent';
-      $grid.style.padding = '12px';
+      showLoadError(`Cannot find ${url}`);
+      renderPuzzleList();
       return;
     }
   }
   puzzle = parseIpuz(raw);
   $title.textContent = puzzle.title || 'Crossword';
-  populatePuzzleSelect(manifest, file);
+  renderPuzzleList();
   $subtitle.textContent = puzzle.subtitle;
   $subtitle.hidden = !puzzle.subtitle;
   if (puzzle.author) {

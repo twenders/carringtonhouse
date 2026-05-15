@@ -650,3 +650,82 @@ test('saveState is non-throwing if storage rejects writes', () => {
   };
   saveState(s, p, broken); // must not throw
 });
+
+import { slugify, uniqueSlug, loadUploads, saveUploads, addUpload, renameUpload, deleteUpload } from '../../engine.js';
+
+test('slugify lowercases, replaces non-alnum runs with hyphens, strips .ipuz', () => {
+  assert.equal(slugify('My Crossword (final).ipuz'), 'my-crossword-final');
+  assert.equal(slugify('  leading and trailing  '), 'leading-and-trailing');
+  assert.equal(slugify(''), 'upload');
+  assert.equal(slugify('--___--'), 'upload');
+});
+
+test('uniqueSlug returns base when free, otherwise appends -2, -3, ...', () => {
+  assert.equal(uniqueSlug('foo', new Set()), 'foo');
+  assert.equal(uniqueSlug('foo', new Set(['foo'])), 'foo-2');
+  assert.equal(uniqueSlug('foo', new Set(['foo', 'foo-2'])), 'foo-3');
+});
+
+test('addUpload creates a slug-keyed entry with title and raw, then dedupes on next add', () => {
+  let uploads = {};
+  const r1 = addUpload(uploads, { filename: 'My Puzzle.ipuz', raw: '{"a":1}' });
+  assert.equal(r1.slug, 'my-puzzle');
+  assert.equal(r1.uploads['my-puzzle'].title, 'My Puzzle');
+  assert.equal(r1.uploads['my-puzzle'].raw, '{"a":1}');
+  assert.ok(r1.uploads['my-puzzle'].addedAt);
+  const r2 = addUpload(r1.uploads, { filename: 'my-puzzle.ipuz', raw: '{"a":2}' });
+  assert.equal(r2.slug, 'my-puzzle-2');
+  assert.equal(Object.keys(r2.uploads).length, 2);
+});
+
+test('renameUpload updates title in place when slug derives unchanged', () => {
+  const uploads = { foo: { title: 'Foo', raw: 'x', addedAt: 't' } };
+  const r = renameUpload(uploads, 'foo', 'Foo  ');
+  assert.equal(r.slug, 'foo');
+  assert.equal(r.uploads.foo.title, 'Foo');
+});
+
+test('renameUpload changes the key when new title produces a new slug', () => {
+  const uploads = { foo: { title: 'Foo', raw: 'x', addedAt: 't' } };
+  const r = renameUpload(uploads, 'foo', 'Bar baz');
+  assert.equal(r.slug, 'bar-baz');
+  assert.equal(r.uploads['bar-baz'].title, 'Bar baz');
+  assert.equal(r.uploads.foo, undefined);
+});
+
+test('renameUpload auto-dedupes when the new slug collides', () => {
+  const uploads = {
+    foo: { title: 'Foo', raw: 'x', addedAt: 't' },
+    bar: { title: 'Bar', raw: 'y', addedAt: 't' },
+  };
+  const r = renameUpload(uploads, 'foo', 'Bar');
+  assert.equal(r.slug, 'bar-2');
+  assert.equal(r.uploads['bar-2'].title, 'Bar');
+  assert.equal(r.uploads.bar.title, 'Bar');
+});
+
+test('deleteUpload removes the named entry, leaves others untouched', () => {
+  const uploads = {
+    foo: { title: 'Foo', raw: 'x', addedAt: 't' },
+    bar: { title: 'Bar', raw: 'y', addedAt: 't' },
+  };
+  const next = deleteUpload(uploads, 'foo');
+  assert.equal(next.foo, undefined);
+  assert.equal(next.bar.title, 'Bar');
+});
+
+test('loadUploads / saveUploads round-trip through storage', () => {
+  const storage = fakeStorage();
+  assert.deepEqual(loadUploads(storage), {});
+  saveUploads({ foo: { title: 'Foo', raw: 'x', addedAt: 't' } }, storage);
+  const loaded = loadUploads(storage);
+  assert.equal(loaded.foo.title, 'Foo');
+});
+
+test('loadUploads returns {} when stored value is malformed', () => {
+  const storage = fakeStorage();
+  storage.setItem('xword-uploads', '{not json');
+  assert.deepEqual(loadUploads(storage), {});
+  storage.setItem('xword-uploads', JSON.stringify(['array', 'not', 'object']));
+  assert.deepEqual(loadUploads(storage), {});
+});

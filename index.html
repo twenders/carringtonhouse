@@ -68,11 +68,6 @@
     background: #f0f0f0; border: 1px solid #ccc; border-radius: 3px;
     padding: 0 4px; margin: 0 1px;
   }
-  .puzzle-select {
-    font: inherit; font-size: 0.85rem;
-    padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px;
-    background: #fff; width: 100%;
-  }
   .upload-button {
     font: inherit; font-size: 0.85rem;
     padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px;
@@ -87,17 +82,60 @@
     font-size: 0.75rem; color: var(--wrong);
     margin-top: 4px;
   }
-  .picker-item {
+  .picker-list {
+    list-style: none; margin: 0; padding: 0;
+    max-height: 240px; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 2px;
+    border: 1px solid #eee; border-radius: 4px;
+  }
+  .picker-row {
+    display: flex; align-items: stretch; gap: 0;
+    border-radius: 4px; position: relative;
+  }
+  .picker-row:hover { background: #f0f0f0; }
+  .picker-row[aria-current="true"] { background: #eef3fa; }
+  .picker-row[aria-current="true"]:hover { background: #e2ebf6; }
+  .picker-item-button {
+    flex: 1; min-width: 0;
     font: inherit; padding: 8px 12px; border: none; background: transparent;
     border-radius: 4px; cursor: pointer; text-align: left; color: inherit;
-    text-transform: none; letter-spacing: 0;
     display: flex; flex-direction: column; gap: 2px;
   }
-  .picker-item:hover { background: #f0f0f0; }
-  .picker-item:active { background: #e6e6e6; }
-  .picker-item[aria-current="true"] { background: #eef3fa; }
-  .picker-item .picker-item-title { font-size: 0.9rem; font-weight: 500; }
-  .picker-item .picker-item-date { font-size: 0.75rem; color: var(--muted); }
+  .picker-item-title {
+    font-size: 0.9rem; font-weight: 500;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .picker-item-date { font-size: 0.75rem; color: var(--muted); }
+  .picker-rename-input {
+    flex: 1; font: inherit; font-size: 0.9rem;
+    margin: 4px 8px; padding: 4px 8px;
+    border: 1px solid #aaa; border-radius: 4px; background: #fff;
+  }
+  .picker-row-menu { position: relative; }
+  .picker-row-menu > summary {
+    list-style: none; cursor: pointer; user-select: none;
+    padding: 0 10px; font-size: 1.1rem; line-height: 1;
+    color: var(--muted); display: flex; align-items: center;
+    border-radius: 4px;
+  }
+  .picker-row-menu > summary::-webkit-details-marker { display: none; }
+  .picker-row-menu > summary:hover { background: #e6e6e6; color: inherit; }
+  .picker-row-menu[open] > summary { background: #e6e6e6; color: inherit; }
+  .picker-row-menu .menu-content {
+    position: absolute; top: 100%; right: 0;
+    background: #fff; border: 1px solid #ccc; border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    padding: 4px; z-index: 6; min-width: 140px;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .picker-row-menu .menu-item {
+    font: inherit; font-size: 0.85rem;
+    padding: 6px 10px; border: none; background: transparent;
+    text-align: left; border-radius: 4px; cursor: pointer; white-space: nowrap;
+  }
+  .picker-row-menu .menu-item:hover { background: #f0f0f0; }
+  .picker-row-menu .menu-item-destructive { color: var(--wrong); }
+  .picker-row-menu .menu-item-destructive:hover { background: #fbecec; }
   #toolbar {
     display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center;
   }
@@ -256,7 +294,7 @@
           <li><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> jump to next / previous word.</li>
         </ul>
         <h3 class="help-heading">Choose puzzle</h3>
-        <select id="puzzle-select" class="puzzle-select"></select>
+        <ul id="puzzle-list" class="picker-list"></ul>
         <button id="upload-puzzle" type="button" class="upload-button">Upload .ipuz…</button>
         <input id="upload-input" type="file" accept=".ipuz,application/json,.json" hidden>
         <p class="upload-hint">See <a href="./ipuz-format.html" target="_blank" rel="noopener">.ipuz format</a> for the spec and a minimal example.</p>

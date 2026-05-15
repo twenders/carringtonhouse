@@ -384,6 +384,73 @@ export function saveState(state, puzzle, storage = globalThis.localStorage) {
   }
 }
 
+const UPLOADS_KEY = 'xword-uploads';
+
+export function slugify(name) {
+  const base = String(name ?? '')
+    .replace(/\.ipuz$/i, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return base || 'upload';
+}
+
+export function uniqueSlug(base, existingSlugs) {
+  const taken = existingSlugs instanceof Set ? existingSlugs : new Set(existingSlugs);
+  if (!taken.has(base)) return base;
+  let i = 2;
+  while (taken.has(`${base}-${i}`)) i++;
+  return `${base}-${i}`;
+}
+
+export function loadUploads(storage = globalThis.localStorage) {
+  if (!storage) return {};
+  let raw;
+  try { raw = storage.getItem(UPLOADS_KEY); } catch { return {}; }
+  if (!raw) return {};
+  try {
+    const parsed = JSON.parse(raw);
+    return (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+export function saveUploads(uploads, storage = globalThis.localStorage) {
+  if (!storage) return;
+  try { storage.setItem(UPLOADS_KEY, JSON.stringify(uploads)); } catch {}
+}
+
+export function addUpload(uploads, { filename, raw }) {
+  const title = String(filename ?? '').replace(/\.ipuz$/i, '') || 'Untitled';
+  const slug = uniqueSlug(slugify(title), new Set(Object.keys(uploads)));
+  const next = {
+    ...uploads,
+    [slug]: { title, raw, addedAt: new Date().toISOString() },
+  };
+  return { uploads: next, slug };
+}
+
+export function renameUpload(uploads, slug, newTitle) {
+  const entry = uploads[slug];
+  if (!entry) return { uploads, slug };
+  const title = String(newTitle ?? '').trim() || entry.title;
+  const desired = slugify(title);
+  const taken = new Set(Object.keys(uploads).filter(k => k !== slug));
+  const nextSlug = uniqueSlug(desired, taken);
+  if (nextSlug === slug) {
+    return { uploads: { ...uploads, [slug]: { ...entry, title } }, slug };
+  }
+  const { [slug]: _omit, ...rest } = uploads;
+  return { uploads: { ...rest, [nextSlug]: { ...entry, title } }, slug: nextSlug };
+}
+
+export function deleteUpload(uploads, slug) {
+  if (!uploads[slug]) return uploads;
+  const { [slug]: _omit, ...rest } = uploads;
+  return rest;
+}
+
 export function loadState(puzzle, storage = globalThis.localStorage) {
   if (!storage) return null;
   let raw;
