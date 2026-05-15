@@ -205,11 +205,6 @@ F G H</code></pre>
 
   <p>Clue numbers that don't match any entry are ignored. Entries without a matching clue still show the label (e.g. <strong>3A</strong>) but no text. When the <code>clues</code> object is missing or both arrays are empty, the bar is hidden entirely.</p>
 
-  <h2>Where this is used</h2>
-
-  <ul>
-    <li><strong>In the deployed site</strong>: drop a new <code>.ipuz</code> into the <code>puzzles/</code> directory and append an entry to <a href="./puzzles/puzzles.json"><code>puzzles/puzzles.json</code></a>. See the main <a href="./README.md">README</a>.</li>
-    <li><strong>As an upload</strong>: click <code>?</code> → <strong>Upload .ipuz…</strong> to load a local file. The raw JSON is stored in <code>localStorage</code> under <code>xword-upload-source</code> and reachable via <code>?p=local</code>.</li>
-  </ul>
+  <p>To try a <code>.ipuz</code> file in this viewer, click <code>?</code> → <strong>Upload .ipuz…</strong>. The file stays in your browser's <code>localStorage</code> and is reachable at <code>?p=local</code>.</p>
 </body>
 </html>
